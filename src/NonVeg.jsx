@@ -1,11 +1,12 @@
 // Nonveg.jsx
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchNonveg } from "./nonvegSlice";
+
 import { addToCart } from "./cartSlice";
 import { toast } from "react-toastify";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./Nonveg.css";
+import { fetchNonveg } from "./nonvegSlice";
 
 function Nonveg() {
   const dispatch = useDispatch();
