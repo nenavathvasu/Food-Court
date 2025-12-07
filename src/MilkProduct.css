@@ -1,0 +1,104 @@
+/* --- Global Container and Header Styling --- */
+
+.milk-menu-container {
+    /* Center the container and give it a maximum width */
+    width: 90%;
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 20px;
+    background-color: #fcfcfc; /* Light background */
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.menu-title {
+    text-align: center;
+    color: #007bff; /* A prominent color for the title */
+    margin-bottom: 30px;
+    font-size: 2.2em;
+    padding-bottom: 10px;
+    border-bottom: 3px solid #e0e0e0;
+}
+
+/* --- Menu Grid Layout --- */
+
+.menu-list.menu-grid {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    /* Responsive Grid: Items adjust to fit the container */
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px; /* Space between grid items */
+}
+
+/* --- Individual Menu Item Styling --- */
+
+.menu-item {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden; /* Ensures image corners are rounded */
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.menu-item:hover {
+    transform: translateY(-5px); /* Lift effect on hover */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.item-image {
+    width: 100%;
+    height: 180px; /* Consistent height for all images */
+    object-fit: cover; /* Ensures images cover the area without distortion */
+}
+
+.item-details {
+    padding: 15px;
+    flex-grow: 1; /* Allows details section to take up available space */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.item-name {
+    font-size: 1.4em;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.item-price {
+    font-size: 1.2em;
+    color: #28a745; /* Green color for price */
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+/* --- Add to Cart Button Styling --- */
+
+.add-to-cart-btn {
+    background-color: #ffc107; /* Yellow/Gold color */
+    color: #333;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 0 0 8px 8px; /* Curve only the bottom edges */
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: bold;
+    transition: background-color 0.2s, box-shadow 0.2s;
+    width: 100%; /* Full width button */
+    margin-top: auto; /* Pushes the button to the bottom of the item */
+}
+
+.add-to-cart-btn:hover {
+    background-color: #e0a800; /* Darker yellow on hover */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.add-to-cart-btn:active {
+    background-color: #c69500;
+}

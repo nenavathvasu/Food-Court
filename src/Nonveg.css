@@ -1,0 +1,21 @@
+/* Nonveg.css */
+.nonveg-animated-btn {
+  background: linear-gradient(270deg, #ff416c, #ff4b2b, #ff8008, #ff4b2b);
+  background-size: 600% 600%;
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 0.5rem;
+  transition: transform 0.2s ease-in-out;
+  animation: gradientMove 4s ease infinite;
+}
+
+.nonveg-animated-btn:hover {
+  transform: scale(1.05);
+}
+
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}

@@ -1,0 +1,81 @@
+/* ============================
+   AUTH FORM CONTAINER
+============================= */
+.auth-container {
+  width: 360px;
+  margin: 60px auto;
+  padding: 25px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0px 5px 18px rgba(0, 0, 0, 0.12);
+  font-family: "Poppins", sans-serif;
+  text-align: center;
+}
+
+/* Title */
+.auth-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+/* Inputs */
+.auth-input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 14px;
+  border-radius: 8px;
+  border: 1px solid #cfcfcf;
+  font-size: 15px;
+  transition: 0.3s;
+}
+
+.auth-input:focus {
+  border-color: #4a90e2;
+  box-shadow: 0px 0px 6px rgba(74, 144, 226, 0.25);
+  outline: none;
+}
+
+/* Button */
+.auth-btn {
+  width: 100%;
+  padding: 12px;
+  background: #4a90e2;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.auth-btn:hover {
+  background-color: #3b78bd;
+}
+
+.auth-btn:disabled {
+  background: #9dbce6;
+  cursor: not-allowed;
+}
+
+/* Error Message */
+.auth-error {
+  margin-top: 10px;
+  color: red;
+  font-size: 14px;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .auth-container {
+    width: 90%;
+    padding: 18px;
+  }
+
+  .auth-btn,
+  .auth-input {
+    font-size: 14px;
+    padding: 10px;
+  }
+}

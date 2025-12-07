@@ -1,0 +1,66 @@
+/* --- MAIN NAVIGATION BAR --- */
+.main-nav {
+    background: #1e1e1e;
+    padding: 15px 0;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    position: sticky;
+    top: 0;
+    z-index: 999;
+}
+
+/* --- NAV LIST --- */
+.nav-list {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    gap: 35px;
+    margin: 0;
+    padding: 0;
+}
+
+/* --- NAV ITEMS --- */
+.nav-list li {
+    display: inline-block;
+}
+
+/* --- NAV LINKS --- */
+.nav-list a {
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+    padding: 8px 12px;
+    transition: 0.3s ease-in-out;
+    border-radius: 4px;
+}
+
+/* hover effects */
+.nav-list a:hover {
+    background: #007bff;
+    color: white;
+}
+
+/* Active link highlight (optional) */
+.nav-list a.active {
+    background: #007bff;
+    color: white;
+}
+
+/* Cart emoji sizing */
+.nav-list a span {
+    font-size: 20px;
+}
+
+/* --- ROUTE CONTENT AREA --- */
+.route-content {
+    padding: 25px;
+}
+
+/* --- RESPONSIVE NAVBAR --- */
+@media (max-width: 768px) {
+    .nav-list {
+        flex-direction: column;
+        text-align: center;
+        gap: 15px;
+        padding: 15px 0;
+    }
+}
