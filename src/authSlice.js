@@ -2,7 +2,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "./axiosInstance";
 
-const BASE_URL = "/user";
+const BASE_URL = "https://food-court-8bzk.onrender.com";
 
 // ===============================
 // LOGIN USER
