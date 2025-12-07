@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 
 import Cart from "./Cart";
 import Veg from "./Veg";
-import Nonveg from "./Nonveg";
+import Nonveg from "./NonVeg";
 import Home from "./Home";
 import ContactUs from "./ContactUs";
 import Orders from "./Orders";
