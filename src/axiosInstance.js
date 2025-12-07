@@ -2,7 +2,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:3000/api",
+  baseURL: "https://food-court-i2gj.onrender.com",
 });
 
 // Add token automatically
