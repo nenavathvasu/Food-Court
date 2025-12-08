@@ -1,17 +1,12 @@
-// src/authSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "./axiosInstance";
 
-const BASE_URL = "https://food-court-8bzk.onrender.com";
-
-// ===============================
 // LOGIN USER
-// ===============================
 export const loginUser = createAsyncThunk(
   "auth/login",
   async (credentials, { rejectWithValue }) => {
     try {
-      const res = await api.post(`${BASE_URL}/login`, credentials);
+      const res = await api.post(`/user/login`, credentials);
       return res.data; // { token, user }
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || "Login failed");
@@ -19,17 +14,15 @@ export const loginUser = createAsyncThunk(
   }
 );
 
-// ===============================
 // REGISTER USER
-// ===============================
 export const registerUser = createAsyncThunk(
   "auth/register",
   async (formData, { rejectWithValue }) => {
     try {
-      const res = await api.post(`${BASE_URL}/register`, formData);
+      const res = await api.post(`/user/register`, formData);
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data || "Registration failed");
+      return rejectWithValue(err.response?.data?.message || "Registration failed");
     }
   }
 );
@@ -54,54 +47,36 @@ const authSlice = createSlice({
       localStorage.clear();
       window.location.href = "/login";
     },
+    setUser: (state, action) => {
+      state.user = action.payload;
+      localStorage.setItem("user", JSON.stringify(action.payload));
+    }
   },
-
   extraReducers: (builder) => {
     builder
-      // LOGIN
-      .addCase(loginUser.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
+      .addCase(loginUser.pending, (state) => { state.loading = true; state.error = null; })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.loading = false;
-
         const { token, user } = action.payload;
-
         state.token = token;
         state.user = user;
         state.tokenExpiresAt = user.tokenExpiresAt;
-
         localStorage.setItem("token", token);
         localStorage.setItem("tokenExpiresAt", user.tokenExpiresAt);
         localStorage.setItem("user", JSON.stringify(user));
       })
-      .addCase(loginUser.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
+      .addCase(loginUser.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
 
-      // REGISTER
-      .addCase(registerUser.pending, (state) => {
-        state.loading = true;
-      })
-      .addCase(registerUser.fulfilled, (state) => {
-        state.loading = false;
-        state.error = null;
-      })
-      .addCase(registerUser.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      });
+      .addCase(registerUser.pending, (state) => { state.loading = true; })
+      .addCase(registerUser.fulfilled, (state) => { state.loading = false; state.error = null; })
+      .addCase(registerUser.rejected, (state, action) => { state.loading = false; state.error = action.payload; });
   },
 });
 
-export const { logout } = authSlice.actions;
+export const { logout, setUser } = authSlice.actions;
 export default authSlice.reducer;
 
-// ===============================
-// AUTO-LOGOUT CHECKER (Every 5 sec)
-// ===============================
+// AUTO-LOGOUT CHECKER
 setInterval(() => {
   const expiry = Number(localStorage.getItem("tokenExpiresAt"));
   const token = localStorage.getItem("token");

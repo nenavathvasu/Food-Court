@@ -1,15 +1,10 @@
-import axios from "axios";
+import api from "./axiosInstance"; // uses /api base
 
-const BASE_URL = "https://food-court-i2gj.onrender.com";
-
-// GET Veg Items
 export const fetchVegItems = async () =>
-  (await axios.get(`${BASE_URL}/veg`)).data;
+  (await api.get("/menu/getveg")).data;
 
-// GET Non-Veg Items
 export const fetchNonVegItems = async () =>
-  (await axios.get(`${BASE_URL}/nonveg`)).data;
+  (await api.get("/menu/getnonveg")).data;
 
-// POST Order --> /api/orders/placeorder
 export const sendOrderToServer = async (order) =>
-  (await axios.post(`${BASE_URL}/orders/placeorder`, order)).data;
+  (await api.post("/orders/placeorder", order)).data;

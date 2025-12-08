@@ -1,85 +1,101 @@
-// src/cartSlice.js
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import api from "./axiosInstance";
-import { toast } from "react-toastify";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { sendOrderToServer } from "./api";
+import api from "./axiosInstance"; // IMPORTANT for protected API calls
 
-const ORDER_URL = "/orders"; // base, axiosInstance provides baseURL automatically
 
-// ================================
-// PLACE ORDER
-// ================================
+
+// ===============================
+// PLACE ORDER (POST)
+// ===============================
 export const placeOrder = createAsyncThunk(
   "cart/placeOrder",
-  async (orderData, { rejectWithValue }) => {
+  async (order, { rejectWithValue }) => {
     try {
-      const res = await api.post(`${ORDER_URL}/placeOrder`, orderData);
-      return res.data;
+      const res = await sendOrderToServer(order);
+      return res;
     } catch (err) {
-      return rejectWithValue(err.response?.data || err.message);
+      return rejectWithValue(err.response?.data?.message || "Failed to place order");
     }
   }
 );
 
-// ================================
-// FETCH ALL ORDERS
-// ================================
+
+// ===============================
+// FETCH ALL ORDERS (GET)
+// ===============================
 export const fetchAllOrders = createAsyncThunk(
-  "cart/fetchAllOrders",
+  "orders/fetchAll",
   async (_, { rejectWithValue }) => {
     try {
-      const res = await api.get(`${ORDER_URL}/fetchOrders`);
+      const res = await api.get("/orders/fetchOrders");
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data || err.message);
+      return rejectWithValue(err.response?.data?.message || "Failed to fetch orders");
     }
   }
 );
 
+
+
+
+// ===============================
+// INITIAL STATE
+// ===============================
+const initialState = {
+  items: [],
+  discountPercentage: 0,
+  loading: false,
+  error: null,
+  allOrders: []   // ← IMPORTANT
+};
+
+
+
+
+// ===============================
+// SLICE
+// ===============================
 const cartSlice = createSlice({
   name: "cart",
-  initialState: {
-    items: [],
-    discountPercentage: 0,
-    orders: [],
-    loading: false,
-    error: null,
-  },
-
+  initialState,
   reducers: {
-    addToCart(state, action) {
+    addToCart: (state, action) => {
       const item = action.payload;
-      const existing = state.items.find((i) => i.id === item.id);
-
-      if (existing) {
-        existing.quantity++;
-      } else {
-        state.items.push({ ...item, quantity: 1 });
-      }
-
-      toast.success(`${item.name} added to cart`);
+      const existing = state.items.find(
+        (i) => i.id === item.id || i._id === item._id
+      );
+      if (existing) existing.quantity += 1;
+      else state.items.push({ ...item, quantity: 1 });
     },
 
-    removeFromCart(state, action) {
-      state.items = state.items.filter((i) => i.id !== action.payload);
+    removeFromCart: (state, action) => {
+      state.items = state.items.filter(
+        (i) => (i.id || i._id) !== action.payload
+      );
     },
 
-    incrementQuantity(state, action) {
-      const item = state.items.find((i) => i.id === action.payload);
+    incrementQuantity: (state, action) => {
+      const item = state.items.find(
+        (i) => (i.id || i._id) === action.payload
+      );
       if (item) item.quantity++;
     },
 
-    decrementQuantity(state, action) {
-      const item = state.items.find((i) => i.id === action.payload);
-      if (item) {
-        item.quantity--;
-        if (item.quantity <= 0)
-          state.items = state.items.filter((i) => i.id !== item.id);
-      }
+    decrementQuantity: (state, action) => {
+      const id = action.payload;
+      const item = state.items.find((i) => (i.id || i._id) === id);
+      if (item && item.quantity > 1) item.quantity--;
+      else state.items = state.items.filter((i) => (i.id || i._id) !== id);
     },
 
-    setDiscount(state, action) {
+    setDiscount: (state, action) => {
       state.discountPercentage = action.payload;
     },
+
+    clearCart: (state) => {
+      state.items = [];
+      state.discountPercentage = 0;
+    }
   },
 
   extraReducers: (builder) => {
@@ -89,61 +105,65 @@ const cartSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(placeOrder.fulfilled, (state, action) => {
+      .addCase(placeOrder.fulfilled, (state) => {
         state.loading = false;
-
-        toast.success("🎉 Order placed successfully!");
-
-        if (action.payload?.result) {
-          state.orders.push(action.payload.result);
-        }
-
-        // Clear cart on success
         state.items = [];
-        state.discountPercentage = 0;
       })
       .addCase(placeOrder.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-        toast.error("❌ Failed to place order!");
       })
 
-      // FETCH ORDERS
+      // FETCH ALL ORDERS
       .addCase(fetchAllOrders.pending, (state) => {
         state.loading = true;
       })
       .addCase(fetchAllOrders.fulfilled, (state, action) => {
         state.loading = false;
-        state.orders = action.payload;
+        state.allOrders = action.payload || [];
       })
       .addCase(fetchAllOrders.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
-  },
+  }
 });
 
-// Selectors
+
+
+
+// ===============================
+// EXPORT ACTIONS
+// ===============================
 export const {
   addToCart,
   removeFromCart,
   incrementQuantity,
   decrementQuantity,
   setDiscount,
+  clearCart
 } = cartSlice.actions;
 
-export const selectCartSubtotal = (state) =>
-  state.cart.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-export const selectFinalTotal = (state) => {
-  const subtotal = state.cart.items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
+
+
+// ===============================
+// SELECTORS
+// ===============================
+export const selectCartSubtotal = (state) =>
+  state.cart.items.reduce(
+    (sum, i) => sum + (i.price || 0) * (i.quantity || 1),
     0
   );
-  const discount = (subtotal * state.cart.discountPercentage) / 100;
-  const discountedSubtotal = subtotal - discount;
-  const gst = discountedSubtotal * 0.12;
-  return +(discountedSubtotal + gst).toFixed(2);
+
+export const selectFinalTotal = (state) => {
+  const subtotal = selectCartSubtotal(state);
+  const discount = (subtotal * (state.cart.discountPercentage || 0)) / 100;
+  const discounted = subtotal - discount;
+  const gst = discounted * 0.12;
+  return Number((discounted + gst).toFixed(2));
 };
+
+
 
 export default cartSlice.reducer;
