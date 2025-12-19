@@ -1,32 +1,43 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "./axiosInstance";
 
-// LOGIN USER
+/* =========================
+   LOGIN USER
+========================= */
 export const loginUser = createAsyncThunk(
   "auth/login",
   async (credentials, { rejectWithValue }) => {
     try {
-      const res = await api.post(`/user/login`, credentials);
-      return res.data; // { token, user }
+      const res = await api.post("/user/login", credentials);
+      return res.data; // { token, user, tokenExpiresAt }
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Login failed");
+      return rejectWithValue(
+        err.response?.data?.message || "Login failed"
+      );
     }
   }
 );
 
-// REGISTER USER
+/* =========================
+   REGISTER USER
+========================= */
 export const registerUser = createAsyncThunk(
   "auth/register",
   async (formData, { rejectWithValue }) => {
     try {
-      const res = await api.post(`/user/register`, formData);
+      const res = await api.post("/user/register", formData);
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Registration failed");
+      return rejectWithValue(
+        err.response?.data?.message || "Registration failed"
+      );
     }
   }
 );
 
+/* =========================
+   INITIAL STATE
+========================= */
 const initialState = {
   user: JSON.parse(localStorage.getItem("user")) || null,
   token: localStorage.getItem("token") || null,
@@ -35,6 +46,9 @@ const initialState = {
   error: null,
 };
 
+/* =========================
+   AUTH SLICE
+========================= */
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -44,42 +58,70 @@ const authSlice = createSlice({
       state.token = null;
       state.tokenExpiresAt = null;
       state.error = null;
-      localStorage.clear();
+
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
+      localStorage.removeItem("tokenExpiresAt");
+
       window.location.href = "/login";
     },
+
     setUser: (state, action) => {
       state.user = action.payload;
       localStorage.setItem("user", JSON.stringify(action.payload));
-    }
+    },
   },
+
   extraReducers: (builder) => {
     builder
-      .addCase(loginUser.pending, (state) => { state.loading = true; state.error = null; })
+      /* ---- LOGIN ---- */
+      .addCase(loginUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.loading = false;
-        const { token, user } = action.payload;
+
+        const { token, user, tokenExpiresAt } = action.payload;
+
         state.token = token;
         state.user = user;
-        state.tokenExpiresAt = user.tokenExpiresAt;
-        localStorage.setItem("token", token);
-        localStorage.setItem("tokenExpiresAt", user.tokenExpiresAt);
-        localStorage.setItem("user", JSON.stringify(user));
-      })
-      .addCase(loginUser.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
+        state.tokenExpiresAt = tokenExpiresAt;
 
-      .addCase(registerUser.pending, (state) => { state.loading = true; })
-      .addCase(registerUser.fulfilled, (state) => { state.loading = false; state.error = null; })
-      .addCase(registerUser.rejected, (state, action) => { state.loading = false; state.error = action.payload; });
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(user));
+        localStorage.setItem("tokenExpiresAt", tokenExpiresAt);
+      })
+      .addCase(loginUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      /* ---- REGISTER ---- */
+      .addCase(registerUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(registerUser.fulfilled, (state) => {
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(registerUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
   },
 });
 
 export const { logout, setUser } = authSlice.actions;
 export default authSlice.reducer;
 
-// AUTO-LOGOUT CHECKER
+/* =========================
+   AUTO LOGOUT (TOKEN EXPIRY)
+========================= */
 setInterval(() => {
-  const expiry = Number(localStorage.getItem("tokenExpiresAt"));
   const token = localStorage.getItem("token");
+  const expiry = Number(localStorage.getItem("tokenExpiresAt"));
 
   if (token && expiry && Date.now() > expiry) {
     localStorage.clear();
