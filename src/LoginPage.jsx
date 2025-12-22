@@ -21,23 +21,24 @@ function LoginPage() {
     e.preventDefault();
 
     dispatch(loginUser(form)).then((res) => {
-      if (res.meta.requestStatus === "fulfilled") {
-        Swal.fire({
-          icon: "success",
-          title: "Login Successful!",
-          timer: 1200,
-          showConfirmButton: false,
-        });
-
-        setTimeout(() => navigate("/veg"), 1200);
-      } else {
-        Swal.fire({
-          icon: "error",
-          title: "Login Failed",
-          text: res.payload,
-        });
-      }
+  if (res.meta.requestStatus === "fulfilled") {
+    Swal.fire({
+      icon: "success",
+      title: "Login Successful!",
+      timer: 1200,
+      showConfirmButton: false,
     });
+
+    setTimeout(() => navigate("/veg"), 1200);
+  } else {
+    Swal.fire({
+      icon: "error",
+      title: "Login Failed",
+      text: res.payload,
+    });
+  }
+});
+
   };
 
   return (

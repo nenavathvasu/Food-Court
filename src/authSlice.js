@@ -39,9 +39,16 @@ export const registerUser = createAsyncThunk(
    INITIAL STATE
 ========================= */
 const initialState = {
-  user: JSON.parse(localStorage.getItem("user")) || null,
-  token: localStorage.getItem("token") || null,
+  user: (() => {
+    try {
+      return JSON.parse(localStorage.getItem("user"));
+    } catch {
+      return null;
+    }
+  })(),
+  token: localStorage.getItem("token"),
   tokenExpiresAt: Number(localStorage.getItem("tokenExpiresAt")) || null,
+  isAuthenticated: !!localStorage.getItem("token"),
   loading: false,
   error: null,
 };
@@ -57,21 +64,14 @@ const authSlice = createSlice({
       state.user = null;
       state.token = null;
       state.tokenExpiresAt = null;
+      state.isAuthenticated = false;
       state.error = null;
 
       localStorage.removeItem("user");
       localStorage.removeItem("token");
       localStorage.removeItem("tokenExpiresAt");
-
-      window.location.href = "/login";
-    },
-
-    setUser: (state, action) => {
-      state.user = action.payload;
-      localStorage.setItem("user", JSON.stringify(action.payload));
     },
   },
-
   extraReducers: (builder) => {
     builder
       /* ---- LOGIN ---- */
@@ -87,6 +87,7 @@ const authSlice = createSlice({
         state.token = token;
         state.user = user;
         state.tokenExpiresAt = tokenExpiresAt;
+        state.isAuthenticated = true;
 
         localStorage.setItem("token", token);
         localStorage.setItem("user", JSON.stringify(user));
@@ -104,7 +105,6 @@ const authSlice = createSlice({
       })
       .addCase(registerUser.fulfilled, (state) => {
         state.loading = false;
-        state.error = null;
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false;
@@ -113,18 +113,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout, setUser } = authSlice.actions;
+export const { logout } = authSlice.actions;
 export default authSlice.reducer;
-
-/* =========================
-   AUTO LOGOUT (TOKEN EXPIRY)
-========================= */
-setInterval(() => {
-  const token = localStorage.getItem("token");
-  const expiry = Number(localStorage.getItem("tokenExpiresAt"));
-
-  if (token && expiry && Date.now() > expiry) {
-    localStorage.clear();
-    window.location.href = "/login";
-  }
-}, 5000);
