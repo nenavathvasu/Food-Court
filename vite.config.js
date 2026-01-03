@@ -1,7 +1,17 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-})
+  server: {
+    proxy: {
+      // Proxy all /api requests to backend
+      "/api": {
+        target: "https://food-court-i2gj.onrender.com",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, "/api/v1"), 
+        // So /api/menu/veg → backend /api/v1/menu/veg
+      },
+    },
+  },
+});

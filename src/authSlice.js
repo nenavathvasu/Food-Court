@@ -2,8 +2,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "./axiosInstance";
 
-const BASE_URL = "https://food-court-8bzk.onrender.com";
-
 // ===============================
 // LOGIN USER
 // ===============================
@@ -11,7 +9,8 @@ export const loginUser = createAsyncThunk(
   "auth/login",
   async (credentials, { rejectWithValue }) => {
     try {
-      const res = await api.post(`${BASE_URL}/login`, credentials);
+      // ✅ relative path for Vite proxy
+      const res = await api.post("/v1/user/login", credentials);
       return res.data; // { token, user }
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || "Login failed");
@@ -26,7 +25,8 @@ export const registerUser = createAsyncThunk(
   "auth/register",
   async (formData, { rejectWithValue }) => {
     try {
-      const res = await api.post(`${BASE_URL}/register`, formData);
+      // ✅ relative path for Vite proxy
+      const res = await api.post("/v1/user/register", formData);
       return res.data;
     } catch (err) {
       return rejectWithValue(err.response?.data || "Registration failed");
@@ -34,20 +34,26 @@ export const registerUser = createAsyncThunk(
   }
 );
 
+// ===============================
+// INITIAL STATE
+// ===============================
 const initialState = {
-  user: JSON.parse(localStorage.getItem("user")) || null,
+  user: JSON.parse(localStorage.getItem("user")) || {},
   token: localStorage.getItem("token") || null,
   tokenExpiresAt: Number(localStorage.getItem("tokenExpiresAt")) || null,
   loading: false,
   error: null,
 };
 
+// ===============================
+// SLICE
+// ===============================
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
     logout: (state) => {
-      state.user = null;
+      state.user = {};
       state.token = null;
       state.tokenExpiresAt = null;
       state.error = null;
@@ -55,7 +61,6 @@ const authSlice = createSlice({
       window.location.href = "/login";
     },
   },
-
   extraReducers: (builder) => {
     builder
       // LOGIN
@@ -66,24 +71,25 @@ const authSlice = createSlice({
       .addCase(loginUser.fulfilled, (state, action) => {
         state.loading = false;
 
-        const { token, user } = action.payload;
+        const token = action.payload?.token || null;
+        const user = action.payload?.user || {};
 
         state.token = token;
         state.user = user;
-        state.tokenExpiresAt = user.tokenExpiresAt;
+        state.tokenExpiresAt = user?.tokenExpiresAt || null;
 
-        localStorage.setItem("token", token);
-        localStorage.setItem("tokenExpiresAt", user.tokenExpiresAt);
+        localStorage.setItem("token", token || "");
+        localStorage.setItem("tokenExpiresAt", user?.tokenExpiresAt || "");
         localStorage.setItem("user", JSON.stringify(user));
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        state.error = action.payload || "Login failed";
       })
-
       // REGISTER
       .addCase(registerUser.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
       .addCase(registerUser.fulfilled, (state) => {
         state.loading = false;
@@ -91,11 +97,14 @@ const authSlice = createSlice({
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        state.error = action.payload || "Registration failed";
       });
   },
 });
 
+// ===============================
+// EXPORTS
+// ===============================
 export const { logout } = authSlice.actions;
 export default authSlice.reducer;
 

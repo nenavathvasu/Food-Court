@@ -1,27 +1,24 @@
-// src/axiosInstance.js
 import axios from "axios";
 
+// Use relative path for proxy
 const api = axios.create({
-  baseURL: "http://localhost:3000/api",
+  baseURL: "/api", // Vite will forward /api/... to backend
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
-// Add token automatically
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
+  if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 
-// Auto-logout if backend returns 401 (token expired / invalid)
 api.interceptors.response.use(
   (res) => res,
   (err) => {
     if (err.response?.status === 401) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("tokenExpiresAt");
-      localStorage.removeItem("user");
+      localStorage.clear();
       window.location.href = "/login";
     }
     return Promise.reject(err);

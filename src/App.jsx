@@ -1,6 +1,7 @@
 // src/App.jsx
 import { BrowserRouter, Link, NavLink, Route, Routes } from "react-router-dom";
 import { useSelector } from "react-redux";
+import React from "react";
 
 import Cart from "./Cart";
 import Veg from "./Veg";
