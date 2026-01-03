@@ -1,10 +1,11 @@
 // RegisterPage.jsx
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { registerUser } from "./authSlice";
+
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { registerUser } from "./authSlice";
 
 function RegisterPage() {
   const dispatch = useDispatch();

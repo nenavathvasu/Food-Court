@@ -1,10 +1,11 @@
 // src/LoginPage.jsx
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { loginUser } from "./authSlice";
+
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { loginUser } from "./authSlice";
 
 function LoginPage() {
   const dispatch = useDispatch();

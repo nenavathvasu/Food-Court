@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { sendOrderToServer } from "./api";
-import api from "./axiosInstance"; // IMPORTANT for protected API calls
+import { sendOrderToServer } from "../../api";
+import api from "../../api/axiosInstance"; // IMPORTANT for protected API calls
 
 
 

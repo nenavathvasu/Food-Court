@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { addToCart } from "./cartSlice";
+
 import { toast } from "react-toastify";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Veg.css'; // Optional: for theme-specific CSS
 import { fetchVeg } from "./vegSlice";
+import { addToCart } from "../cart/cartSlice";
 
 function Veg() {
   const dispatch = useDispatch();

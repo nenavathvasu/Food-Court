@@ -1,7 +1,8 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
-import { fetchAllOrders } from "./cartSlice";
+
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { fetchAllOrders } from "../cart/cartSlice";
 
 function Orders() {
   const dispatch = useDispatch();

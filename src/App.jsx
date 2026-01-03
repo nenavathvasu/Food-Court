@@ -1,44 +1,45 @@
-<<<<<<< HEAD
 // src/App.jsx
-import { BrowserRouter, Link, NavLink, Route, Routes } from "react-router-dom";
-import { useSelector } from "react-redux";
 import React from "react";
-=======
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
->>>>>>> fa51636cd20b0b4a11bbbbe4e314ab79259d776b
 
-import Navbar from "./Navbar"; // import navbar
-import LoginPage from "./LoginPage";
-import RegisterPage from "./RegisterPage";
-import Veg from "./Veg";
-import Nonveg from "./Nonveg";
-import Cart from "./Cart";
-import Orders from "./Orders";
-import Home from "./Home";
-import ContactUs from "./ContactUs";
+import Navbar from "./components/Navbar";
+
+
+import Cart from "./features/cart/Cart";
+
+import ContactUs from "./pages/ContactUs";
+
+
+import Veg from "./features/menu/Veg";
+import Nonveg from "./features/menu/NonVeg";
+import Orders from "./features/orders/Orders";
+import LoginPage from "./features/auth/LoginPage";
+import RegisterPage from "./features/auth/RegisterPage";
+import Home from "./pages/Home";
 
 export default function App() {
   return (
     <BrowserRouter>
-      <Navbar /> {/* Navbar appears on every page */}
+      <Navbar /> {/* Navbar on all pages */}
+
       <Routes>
-        {/* ROOT REDIRECT */}
+        {/* Redirect root to home */}
         <Route path="/" element={<Navigate to="/home" replace />} />
 
-        {/* AUTH PAGES */}
+        {/* Auth pages */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
 
-        {/* MAIN PAGES */}
+        {/* Main pages */}
         <Route path="/home" element={<Home />} />
         <Route path="/veg" element={<Veg />} />
         <Route path="/nonveg" element={<Nonveg />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/orders" element={<Orders />} />
-        <Route path="/contactUS" element={<ContactUs />} />
+        <Route path="/contact-us" element={<ContactUs />} />
 
-        {/* FALLBACK */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        {/* Fallback */}
+        <Route path="*" element={<Navigate to="/home" replace />} />
       </Routes>
     </BrowserRouter>
   );
