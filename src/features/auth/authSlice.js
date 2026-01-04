@@ -1,15 +1,13 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../../api/axiosInstance";
-import publicApi from "../../api/publicApi";
 
 /* ================= LOGIN ================= */
-
 export const loginUser = createAsyncThunk(
-  "login",
-  async (credentials, { rejectWithValue }) => {
+  "auth/loginUser",
+  async (data, { rejectWithValue }) => {
     try {
-      const res = await publicApi.post("/v1/user/login", credentials);
-      return res.data; // { token, user, tokenExpiresAt }
+      const res = await api.post("/user/login", data);
+      return res.data;
     } catch (err) {
       return rejectWithValue(
         err.response?.data?.message || "Login failed"
@@ -19,12 +17,11 @@ export const loginUser = createAsyncThunk(
 );
 
 /* ================= REGISTER ================= */
-
 export const registerUser = createAsyncThunk(
-  "register",
-  async (formData, { rejectWithValue }) => {
+  "auth/registerUser",
+  async (data, { rejectWithValue }) => {
     try {
-      const res = await api.post("/v1/user/register", formData);
+      const res = await api.post("/user/register", data);
       return res.data;
     } catch (err) {
       return rejectWithValue(
@@ -34,70 +31,49 @@ export const registerUser = createAsyncThunk(
   }
 );
 
-/* ================= INITIAL STATE ================= */
-
-const initialState = {
-  user: (() => {
-    try {
-      return JSON.parse(localStorage.getItem("user"));
-    } catch {
-      return null;
-    }
-  })(),
-  token: localStorage.getItem("token"),
-  tokenExpiresAt: Number(localStorage.getItem("tokenExpiresAt")) || null,
-  isAuthenticated: !!localStorage.getItem("token"),
-  loading: false,
-  error: null,
-};
-
-/* ================= SLICE ================= */
-
 const authSlice = createSlice({
   name: "auth",
-  initialState,
+  initialState: {
+    user: JSON.parse(localStorage.getItem("user")) || null,
+    token: localStorage.getItem("token"),
+    tokenExpiresAt: localStorage.getItem("tokenExpiresAt")
+      ? Number(localStorage.getItem("tokenExpiresAt"))
+      : null,
+    isAuthenticated: !!localStorage.getItem("token"),
+    loading: false,
+    error: null,
+  },
   reducers: {
     logout: (state) => {
+      localStorage.clear();
       state.user = null;
       state.token = null;
-      state.tokenExpiresAt = null;
       state.isAuthenticated = false;
-      state.loading = false;
-      state.error = null;
-
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      localStorage.removeItem("tokenExpiresAt");
+      window.location.href = "/login";
     },
   },
   extraReducers: (builder) => {
     builder
-      // LOGIN
+      /* LOGIN */
       .addCase(loginUser.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(loginUser.fulfilled, (state, action) => {
-        const { token, user, tokenExpiresAt } = action.payload || {};
-
         state.loading = false;
-        state.token = token || null;
-        state.user = user || null;
-        state.tokenExpiresAt = tokenExpiresAt || null;
-        state.isAuthenticated = !!token;
+        state.user = action.payload.user;
+        state.token = action.payload.token;
+        state.isAuthenticated = true;
 
-        if (token) {
-          localStorage.setItem("token", token);
-          localStorage.setItem("user", JSON.stringify(user));
-          localStorage.setItem("tokenExpiresAt", tokenExpiresAt || "");
-        }
+        localStorage.setItem("token", action.payload.token);
+        localStorage.setItem("user", JSON.stringify(action.payload.user));
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload || "Login failed";
+        state.error = action.payload;
       })
 
-      // REGISTER
+      /* REGISTER */
       .addCase(registerUser.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -107,7 +83,7 @@ const authSlice = createSlice({
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload || "Registration failed";
+        state.error = action.payload;
       });
   },
 });

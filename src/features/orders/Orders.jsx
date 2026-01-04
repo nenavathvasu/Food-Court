@@ -1,59 +1,42 @@
-import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
-
-import 'bootstrap/dist/css/bootstrap.min.css';
+import { useDispatch, useSelector } from "react-redux";
 import { fetchAllOrders } from "../cart/cartSlice";
+
 
 function Orders() {
   const dispatch = useDispatch();
-  const { orders = [], loading } = useSelector((state) => state.cart);
+  const { allOrders, loading } = useSelector((state) => state.cart);
 
   useEffect(() => {
     dispatch(fetchAllOrders());
   }, [dispatch]);
 
-  if (loading) return <h2 className="text-center my-5">Loading Orders...</h2>;
+  if (loading) return <h3 className="text-center">Loading...</h3>;
 
   return (
     <div className="container my-5">
-      <h2 className="mb-4 text-center fw-bold">Your Orders</h2>
+      <h2 className="text-center mb-4">Your Orders</h2>
 
-      {orders.length === 0 ? (
-        <p className="text-center text-muted">No orders found.</p>
+      {allOrders.length === 0 ? (
+        <p className="text-center">No orders found</p>
       ) : (
-        <div className="row g-4">
-          {orders.map((order, index) => (
-            <div key={order._id || index} className="col-md-6">
-              <div className="card shadow-sm h-100">
-
-                <div className="card-header bg-primary text-white d-flex justify-content-between">
-                  <h5 className="mb-0">Order #{index + 1}</h5>
-                  <small>{new Date(order.createdAt || order.date).toLocaleString()}</small>
-                </div>
-
-                <div className="card-body">
-                  <p><strong>Email:</strong> {order.customerEmail || order.email}</p>
-                  <p><strong>Total Amount:</strong> ₹{(order.finalTotal || order.total).toFixed(2)}</p>
-
-                  <h6 className="mt-3">Items:</h6>
-                  <ul className="list-group list-group-flush">
-                    {(order.items || order.orderItems || []).map((item, idx) => (
-                      <li key={idx} className="list-group-item d-flex justify-content-between">
-                        {item.name} × {item.quantity}
-                        <span>₹{item.price}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div className="card-footer text-end">
-                  <span className="badge bg-success">Completed</span>
-                </div>
-
-              </div>
+        allOrders.map((order, i) => (
+          <div key={i} className="card mb-3 shadow-sm">
+            <div className="card-body">
+              <h5>Order #{i + 1}</h5>
+              <p>Email: {order.customerEmail}</p>
+              <p>Total: ₹{order.finalTotal}</p>
+              <p>Items:</p>
+              <ul>
+                {order.items.map((item) => (
+                  <li key={item.id}>
+                    {item.name} x {item.qty} = ₹{item.total}
+                  </li>
+                ))}
+              </ul>
             </div>
-          ))}
-        </div>
+          </div>
+        ))
       )}
     </div>
   );

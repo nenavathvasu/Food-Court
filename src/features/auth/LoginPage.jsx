@@ -1,7 +1,6 @@
 // src/LoginPage.jsx
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -18,28 +17,46 @@ function LoginPage() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    dispatch(loginUser(form)).then((res) => {
-  if (res.meta.requestStatus === "fulfilled") {
-    Swal.fire({
-      icon: "success",
-      title: "Login Successful!",
-      timer: 1200,
-      showConfirmButton: false,
-    });
+    // Validate front-end before sending
+    if (!form.email || !form.password) {
+      Swal.fire({
+        icon: "error",
+        title: "Missing Fields",
+        text: "Please enter both email and password",
+      });
+      return;
+    }
 
-    setTimeout(() => navigate("/veg"), 1200);
-  } else {
-    Swal.fire({
-      icon: "error",
-      title: "Login Failed",
-      text: res.payload,
-    });
-  }
-});
+    try {
+      const res = await dispatch(loginUser({ email: form.email, password: form.password }));
 
+      if (res.meta.requestStatus === "fulfilled") {
+        Swal.fire({
+          icon: "success",
+          title: "Login Successful!",
+          timer: 1200,
+          showConfirmButton: false,
+        });
+
+        // Navigate after a short delay
+        setTimeout(() => navigate("/veg"), 1200);
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Login Failed",
+          text: res.payload || "Invalid credentials",
+        });
+      }
+    } catch (err) {
+      Swal.fire({
+        icon: "error",
+        title: "Login Failed",
+        text: err.message || "Something went wrong",
+      });
+    }
   };
 
   return (
@@ -55,6 +72,7 @@ function LoginPage() {
             name="email"
             value={form.email}
             onChange={handleChange}
+            required
           />
 
           <input
@@ -64,6 +82,7 @@ function LoginPage() {
             name="password"
             value={form.password}
             onChange={handleChange}
+            required
           />
 
           <button className="btn btn-primary w-100" disabled={loading}>

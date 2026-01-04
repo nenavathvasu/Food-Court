@@ -1,200 +1,162 @@
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-
-
-import { useNavigate } from "react-router-dom";
 import {
-  removeFromCart,
   incrementQuantity,
   decrementQuantity,
+  removeFromCart,
   setDiscount,
+  clearCart,
+  placeOrder,
   selectCartSubtotal,
   selectFinalTotal,
-  placeOrder,
 } from "./cartSlice";
-import { useState } from "react";
-import { QRCodeSVG } from "qrcode.react";
-import { toast } from "react-toastify";
 import Swal from "sweetalert2";
-import 'bootstrap/dist/css/bootstrap.min.css';
+import { useNavigate } from "react-router-dom";
 
+// Coupon Components
+import Coupon from "../../components/Coupon";
 
-function Cart() {
+function CartPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { items, discountPercentage, loading } = useSelector(
+    (state) => state.cart
+  );
 
-  const cartItems = useSelector((state) => state.cart.items);
-  const subtotal = useSelector(selectCartSubtotal);
-  const finalTotal = useSelector(selectFinalTotal);
-  const discountPercent = useSelector((state) => state.cart.discountPercentage);
-  const user = useSelector((state) => state.auth.user);
+  const subtotal = selectCartSubtotal({ cart: { items } });
+  const finalTotal = selectFinalTotal({ cart: { items, discountPercentage } });
 
-  const [customerEmail, setCustomerEmail] = useState(user?.email || "");
-
-  const discountedAmount = subtotal - (subtotal * discountPercent) / 100;
-  const gst = discountedAmount * 0.12;
-
-  const handleCheckout = async () => {
-    if (!user) {
-      toast.info("Please register or login before placing an order!");
-      navigate("/register");
+  const handlePlaceOrder = async () => {
+    if (items.length === 0) {
+      Swal.fire("Cart is empty", "Add items before checkout", "info");
       return;
     }
 
-    if (!customerEmail) {
-      toast.warning("⚠️ Enter your email!");
-      return;
-    }
+    // Map items to backend format: id, qty, total
+    const backendItems = items.map((i) => ({
+      id: Number(i.id || i._id),
+      name: i.name,
+      price: i.price,
+      qty: i.quantity,
+      total: i.price * i.quantity,
+    }));
 
-    const confirm = await Swal.fire({
-      title: "Confirm Order?",
-      text: `Total Amount ₹${finalTotal}`,
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonText: "Yes, Place Order",
-    });
+    try {
+      await dispatch(
+        placeOrder({
+          customerEmail: localStorage.getItem("user")
+            ? JSON.parse(localStorage.getItem("user")).email
+            : "guest@example.com",
+          items: backendItems,
+          subtotal,
+          discountPercent: discountPercentage,
+          discountedAmount: (subtotal * discountPercentage) / 100,
+          gst: (subtotal - (subtotal * discountPercentage) / 100) * 0.12,
+          finalTotal,
+        })
+      ).unwrap();
 
-    if (!confirm.isConfirmed) return;
-
-    const orderData = {
-      customerEmail,
-      items: cartItems,
-      subtotal,
-      discountPercent,
-      discountedAmount,
-      gst,
-      finalTotal,
-      createdAt: new Date().toISOString(),
-    };
-
-    const resultAction = await dispatch(placeOrder(orderData));
-
-    if (placeOrder.fulfilled.match(resultAction)) {
       Swal.fire({
         icon: "success",
         title: "Order Placed!",
-        text: "Your order has been placed successfully!",
-      }).then(() => navigate("/Orders"));
-    } else {
-      toast.error("❌ Failed to place order");
+        text: `Total: ₹${finalTotal.toFixed(2)}`,
+        timer: 2000,
+        showConfirmButton: false,
+      });
+
+      dispatch(clearCart());
+      navigate("/orders"); // Redirect to Orders page
+    } catch (err) {
+      Swal.fire("Error", err || "Failed to place order", "error");
     }
   };
-  
 
-  const paymentUPI = `upi://pay?pa=7075670630@ptyes&pn=Nenavath Vasu&am=${finalTotal}&cu=INR`;
+  if (items.length === 0)
+    return (
+      <div className="text-center my-5">
+        <h3>Your cart is empty 😔</h3>
+        <button className="btn btn-success" onClick={() => navigate("/veg")}>
+          Browse Food
+        </button>
+      </div>
+    );
 
   return (
-    <div className="container my-5 d-flex flex-column align-items-center">
-      <h2 className="text-center mb-4 animate__animated animate__fadeInDown">🛒 Your Cart</h2>
+    <div className="container my-5">
+      <h2 className="mb-4">Your Cart</h2>
 
-      {cartItems.length === 0 ? (
-        <p className="text-center fs-5">Your cart is empty.</p>
-      ) : (
-        <>
-          <div className="row justify-content-center g-4 w-100">
-            {cartItems.map((item, index) => {
-              const id = item.id || item._id;
-              const colors = ["#ffe6e6", "#e6f7ff", "#e6ffe6", "#fff0e6"];
-              return (
-                <div key={id} className="col-md-6 d-flex justify-content-center">
-                  <div
-                    className="card shadow-sm p-3 cart-card animate__animated animate__fadeInUp"
-                    style={{
-                      background: colors[index % colors.length],
-                      borderRadius: '1rem',
-                      transition: 'transform 0.3s, box-shadow 0.3s',
-                      width: '100%',
-                      maxWidth: '400px'
-                    }}
-                  >
-                    <div className="d-flex justify-content-between align-items-center">
-                      <div>
-                        <h5 className="fw-bold">{item.name}</h5>
-                        <p className="mb-1">Price: ₹{item.price}</p>
-                        <span className="badge bg-info text-dark">{item.quantity} pcs</span>
-                      </div>
-                      <div className="d-flex flex-column gap-2">
-                        <button
-                          className="btn btn-sm btn-outline-primary cart-btn"
-                          onClick={() => dispatch(incrementQuantity(id))}
-                        >
-                          +
-                        </button>
-                        <button
-                          className="btn btn-sm btn-outline-primary cart-btn"
-                          onClick={() => dispatch(decrementQuantity(id))}
-                        >
-                          -
-                        </button>
-                        <button
-                          className="btn btn-sm btn-danger cart-btn"
-                          onClick={() => dispatch(removeFromCart(id))}
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+      {/* Coupons */}
+      <Coupon />
 
-          {/* Totals */}
-          <div className="mt-4 p-4 rounded shadow-sm animate__animated animate__fadeIn w-100" style={{ backgroundColor: '#f8f9fa', maxWidth: '500px' }}>
-            <div className="text-center">
-              <div className="d-flex justify-content-between">
-                <span>Subtotal:</span>
-                <span>₹{subtotal.toFixed(2)}</span>
-              </div>
-              <div className="d-flex justify-content-between">
-                <span>Discount:</span>
-                <span>{discountPercent}%</span>
-              </div>
-              <div className="d-flex justify-content-between">
-                <span>GST 12%:</span>
-                <span>₹{gst.toFixed(2)}</span>
-              </div>
-              <div className="d-flex justify-content-center gap-2 mt-3 flex-wrap">
-                <button className="btn btn-warning btn-sm cart-btn" onClick={() => dispatch(setDiscount(10))}>10% OFF</button>
-                <button className="btn btn-warning btn-sm cart-btn" onClick={() => dispatch(setDiscount(20))}>20% OFF</button>
-                <button className="btn btn-warning btn-sm cart-btn" onClick={() => dispatch(setDiscount(30))}>30% OFF</button>
-              </div>
-              <h4 className="fw-bold mt-3">Final Total: ₹{finalTotal.toFixed(2)}</h4>
+      {items.map((item) => (
+        <div key={item._id || item.id} className="card p-3 mb-3 shadow-sm">
+          <div className="d-flex justify-content-between align-items-center">
+            <div>
+              <strong>{item.name}</strong>
+              <p>
+                ₹{item.price} × {item.quantity} = ₹{item.price * item.quantity}
+              </p>
+            </div>
+            <div className="d-flex align-items-center">
+              <button
+                className="btn btn-sm btn-outline-secondary me-2"
+                onClick={() => dispatch(decrementQuantity(item._id || item.id))}
+              >
+                −
+              </button>
+              <span>{item.quantity}</span>
+              <button
+                className="btn btn-sm btn-outline-secondary ms-2"
+                onClick={() => dispatch(incrementQuantity(item._id || item.id))}
+              >
+                +
+              </button>
+              <button
+                className="btn btn-sm btn-danger ms-3"
+                onClick={() => dispatch(removeFromCart(item._id || item.id))}
+              >
+                Remove
+              </button>
             </div>
           </div>
+        </div>
+      ))}
 
-          {/* Email + Checkout */}
-          <div className="mt-4 animate__animated animate__fadeInUp w-100" style={{ maxWidth: '500px' }}>
-            <input
-              type="email"
-              className="form-control mb-3"
-              placeholder="Enter your email"
-              value={customerEmail}
-              onChange={(e) => setCustomerEmail(e.target.value)}
-              disabled={!!user?.email} // Disable if user already registered
-            />
+      {/* Manual Discount Input */}
+      <div className="mb-3">
+        <label>Discount (%)</label>
+        <input
+          type="number"
+          min="0"
+          max="100"
+          className="form-control w-25"
+          value={discountPercentage}
+          onChange={(e) => dispatch(setDiscount(Number(e.target.value)))}
+        />
+      </div>
 
-            <button className="btn btn-success w-100 mb-3 cart-btn" onClick={handleCheckout}>
-              Checkout & Place Order
-            </button>
+      {/* Totals */}
+      <div className="card p-3 mb-3">
+        <p>Subtotal: ₹{subtotal.toFixed(2)}</p>
+        <p>Discount: {discountPercentage}%</p>
+        <p>
+          GST (12%): ₹
+          {((subtotal - (subtotal * discountPercentage) / 100) * 0.12).toFixed(
+            2
+          )}
+        </p>
+        <h4>Total: ₹{finalTotal.toFixed(2)}</h4>
+      </div>
 
-            <div className="text-center">
-              <h5>Scan to Pay</h5>
-              <QRCodeSVG value={paymentUPI} size={180} level="H" className="animate__animated animate__zoomIn mb-2" />
-              <p>Pay ₹{finalTotal.toFixed(2)}</p>
-            </div>
-
-            <button
-              className="btn btn-primary w-100 mt-3 cart-btn"
-              onClick={() => navigate("/Orders")}
-            >
-              View All Orders
-            </button>
-          </div>
-        </>
-      )}
+      <button
+        className="btn btn-success w-100 mb-3"
+        onClick={handlePlaceOrder}
+        disabled={loading}
+      >
+        {loading ? "Placing Order..." : `Place Order ₹${finalTotal.toFixed(2)}`}
+      </button>
     </div>
   );
 }
 
-export default Cart;
+export default CartPage;

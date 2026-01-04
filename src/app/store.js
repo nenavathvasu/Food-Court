@@ -1,6 +1,4 @@
-// src/app/store.js
 import { configureStore } from "@reduxjs/toolkit";
-
 import cartReducer from "../features/cart/cartSlice";
 import vegReducer from "../features/menu/vegSlice";
 import nonvegReducer from "../features/menu/nonvegSlice";

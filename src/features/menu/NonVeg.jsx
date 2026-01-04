@@ -20,6 +20,7 @@ function Nonveg() {
   const [currentPage, setCurrentPage] = useState(1);
 
   const [theme, setTheme] = useState("light");
+  const [itemRatings, setItemRatings] = useState({});
 
   const applyTheme = (themeName) => {
     document.body.classList.remove("light-theme", "dark-theme", "neon-theme");
@@ -35,6 +36,16 @@ function Nonveg() {
   useEffect(() => {
     dispatch(fetchNonveg());
   }, [dispatch]);
+
+  useEffect(() => {
+    if (NonvegItems && NonvegItems.length > 0) {
+      const ratings = {};
+      NonvegItems.forEach((item) => {
+        ratings[item.id] = (Math.random() * (5 - 3.5) + 3.5).toFixed(1);
+      });
+      setItemRatings(ratings);
+    }
+  }, [NonvegItems]);
 
   if (loading) return <h2 className="text-center my-5">Loading Non-Veg Menu...</h2>;
 
@@ -61,8 +72,6 @@ function Nonveg() {
 
   if (sortOrder === "low-high") filtered = filtered.sort((a, b) => a.price - b.price);
   if (sortOrder === "high-low") filtered = filtered.sort((a, b) => b.price - a.price);
-
-  const randomRating = () => (Math.random() * (5 - 3.5) + 3.5).toFixed(1);
 
   const totalPages = Math.ceil((filtered?.length || 0) / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -138,7 +147,7 @@ function Nonveg() {
       {/* Items Grid */}
       <div className="row g-4">
         {currentItems.map((item, index) => {
-          const rating = randomRating();
+          const rating = itemRatings[item.id] || "4.0";
           const isTopRated = rating > 4.5;
           const isNew = Math.random() > 0.75;
 

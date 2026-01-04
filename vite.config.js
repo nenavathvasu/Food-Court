@@ -7,7 +7,7 @@ export default defineConfig({
     proxy: {
       // Proxy all /api requests to backend
       "/api": {
-        target: "https://food-court-i2gj.onrender.com",
+        target: "https://backend-express-nu.vercel.app/",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, "/api/v1"), 
         // So /api/menu/veg → backend /api/v1/menu/veg
