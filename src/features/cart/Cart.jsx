@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   incrementQuantity,
@@ -7,24 +7,28 @@ import {
   setDiscount,
   clearCart,
   placeOrder,
-  selectCartSubtotal,
-  selectFinalTotal,
 } from "./cartSlice";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
-
-// Coupon Components
 import Coupon from "../../components/Coupon";
 
 function CartPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
   const { items, discountPercentage, loading } = useSelector(
     (state) => state.cart
   );
 
-  const subtotal = selectCartSubtotal({ cart: { items } });
-  const finalTotal = selectFinalTotal({ cart: { items, discountPercentage } });
+  // ✅ FIXED: Correct subtotal calculation
+  const subtotal = items.reduce(
+    (sum, i) => sum + i.price * i.quantity,
+    0
+  );
+
+  const discountAmount = (subtotal * discountPercentage) / 100;
+  const gst = (subtotal - discountAmount) * 0.12;
+  const finalTotal = Number((subtotal - discountAmount + gst).toFixed(2));
 
   const handlePlaceOrder = async () => {
     if (items.length === 0) {
@@ -32,7 +36,6 @@ function CartPage() {
       return;
     }
 
-    // Map items to backend format: id, qty, total
     const backendItems = items.map((i) => ({
       id: Number(i.id || i._id),
       name: i.name,
@@ -50,8 +53,8 @@ function CartPage() {
           items: backendItems,
           subtotal,
           discountPercent: discountPercentage,
-          discountedAmount: (subtotal * discountPercentage) / 100,
-          gst: (subtotal - (subtotal * discountPercentage) / 100) * 0.12,
+          discountedAmount: discountAmount,
+          gst,
           finalTotal,
         })
       ).unwrap();
@@ -59,19 +62,19 @@ function CartPage() {
       Swal.fire({
         icon: "success",
         title: "Order Placed!",
-        text: `Total: ₹${finalTotal.toFixed(2)}`,
+        text: `Total: ₹${finalTotal}`,
         timer: 2000,
         showConfirmButton: false,
       });
 
       dispatch(clearCart());
-      navigate("/orders"); // Redirect to Orders page
+      navigate("/orders");
     } catch (err) {
       Swal.fire("Error", err || "Failed to place order", "error");
     }
   };
 
-  if (items.length === 0)
+  if (items.length === 0) {
     return (
       <div className="text-center my-5">
         <h3>Your cart is empty 😔</h3>
@@ -80,12 +83,12 @@ function CartPage() {
         </button>
       </div>
     );
+  }
 
   return (
     <div className="container my-5">
       <h2 className="mb-4">Your Cart</h2>
 
-      {/* Coupons */}
       <Coupon />
 
       {items.map((item) => (
@@ -94,26 +97,33 @@ function CartPage() {
             <div>
               <strong>{item.name}</strong>
               <p>
-                ₹{item.price} × {item.quantity} = ₹{item.price * item.quantity}
+                ₹{item.price} × {item.quantity} = ₹
+                {item.price * item.quantity}
               </p>
             </div>
             <div className="d-flex align-items-center">
               <button
                 className="btn btn-sm btn-outline-secondary me-2"
-                onClick={() => dispatch(decrementQuantity(item._id || item.id))}
+                onClick={() =>
+                  dispatch(decrementQuantity(item._id || item.id))
+                }
               >
                 −
               </button>
               <span>{item.quantity}</span>
               <button
                 className="btn btn-sm btn-outline-secondary ms-2"
-                onClick={() => dispatch(incrementQuantity(item._id || item.id))}
+                onClick={() =>
+                  dispatch(incrementQuantity(item._id || item.id))
+                }
               >
                 +
               </button>
               <button
                 className="btn btn-sm btn-danger ms-3"
-                onClick={() => dispatch(removeFromCart(item._id || item.id))}
+                onClick={() =>
+                  dispatch(removeFromCart(item._id || item.id))
+                }
               >
                 Remove
               </button>
@@ -122,7 +132,6 @@ function CartPage() {
         </div>
       ))}
 
-      {/* Manual Discount Input */}
       <div className="mb-3">
         <label>Discount (%)</label>
         <input
@@ -131,29 +140,25 @@ function CartPage() {
           max="100"
           className="form-control w-25"
           value={discountPercentage}
-          onChange={(e) => dispatch(setDiscount(Number(e.target.value)))}
+          onChange={(e) =>
+            dispatch(setDiscount(Number(e.target.value)))
+          }
         />
       </div>
 
-      {/* Totals */}
       <div className="card p-3 mb-3">
         <p>Subtotal: ₹{subtotal.toFixed(2)}</p>
         <p>Discount: {discountPercentage}%</p>
-        <p>
-          GST (12%): ₹
-          {((subtotal - (subtotal * discountPercentage) / 100) * 0.12).toFixed(
-            2
-          )}
-        </p>
-        <h4>Total: ₹{finalTotal.toFixed(2)}</h4>
+        <p>GST (12%): ₹{gst.toFixed(2)}</p>
+        <h4>Total: ₹{finalTotal}</h4>
       </div>
 
       <button
-        className="btn btn-success w-100 mb-3"
+        className="btn btn-success w-100"
         onClick={handlePlaceOrder}
         disabled={loading}
       >
-        {loading ? "Placing Order..." : `Place Order ₹${finalTotal.toFixed(2)}`}
+        {loading ? "Placing Order..." : `Place Order ₹${finalTotal}`}
       </button>
     </div>
   );

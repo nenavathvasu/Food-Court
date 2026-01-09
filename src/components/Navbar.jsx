@@ -10,7 +10,7 @@ function Navbar() {
 
   const [search, setSearch] = useState("");
   const cartCount = useSelector((state) => state.cart.items.length);
-  const { isAuthenticated, user } = useSelector((state) => state.auth);
+  const { isAuthenticated } = useSelector((state) => state.auth);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -20,211 +20,115 @@ function Navbar() {
   };
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow">
+    <nav className="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow-sm px-3">
       <div className="container-fluid">
-        {/* LOGO */}
-        <span
-          className="navbar-brand fw-bold fs-4"
-          style={{ cursor: "pointer" }}
-          onClick={() => navigate("/")}
-        >
-          🍔 FoodCourt
-        </span>
 
-        {/* TOGGLER FOR MOBILE */}
-        <button
-          className="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-          aria-controls="navbarNav"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span className="navbar-toggler-icon"></span>
-        </button>
+        {/* LEFT SIDE : LOGO + LINKS */}
+        <div className="d-flex align-items-center gap-4">
 
-        {/* NAV LINKS */}
-        <div className="collapse navbar-collapse" id="navbarNav">
-          <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+          {/* LOGO */}
+          <span
+            className="navbar-brand fw-bold fs-4 mb-0"
+            style={{ cursor: "pointer" }}
+            onClick={() => navigate("/home")}
+          >
+            🍔 FoodCourt
+          </span>
 
-            {/* Home */}
-            <li className="nav-item">
-              <button
-                className="nav-link btn btn-link text-white"
-                onClick={() => navigate("/")}
-              >
-                Home
-              </button>
-            </li>
+          {/* NAV LINKS */}
+          <button
+            className="btn btn-link nav-link text-white p-0"
+            onClick={() => navigate("/veg")}
+          >
+            🥗 Veg
+          </button>
 
-            {/* Categories Dropdown */}
-            <li className="nav-item dropdown">
-              <button
-                className="nav-link dropdown-toggle btn btn-link text-white"
-                id="categoryDropdown"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-              >
-                Categories
-              </button>
-              <ul className="dropdown-menu" aria-labelledby="categoryDropdown">
-                <li>
-                  <button
-                    className="dropdown-item"
-                    onClick={() => navigate("/veg")}
-                  >
-                    🥗 Veg
-                  </button>
-                </li>
-                <li>
-                  <button
-                    className="dropdown-item"
-                    onClick={() => navigate("/nonveg")}
-                  >
-                    🍗 Non-Veg
-                  </button>
-                </li>
-                <li>
-                  <button
-                    className="dropdown-item"
-                    onClick={() => navigate("/snacks")}
-                  >
-                    🍟 Snacks
-                  </button>
-                </li>
-                <li>
-                  <button
-                    className="dropdown-item"
-                    onClick={() => navigate("/drinks")}
-                  >
-                    🥤 Drinks
-                  </button>
-                </li>
-                <li>
-                  <button
-                    className="dropdown-item"
-                    onClick={() => navigate("/desserts")}
-                  >
-                    🍰 Desserts
-                  </button>
-                </li>
-              </ul>
-            </li>
+          <button
+            className="btn btn-link nav-link text-white p-0"
+            onClick={() => navigate("/nonveg")}
+          >
+            🍗 Non-Veg
+          </button>
 
-            {/* Contact Page */}
-            <li className="nav-item">
-              <button
-                className="nav-link btn btn-link text-white"
-                onClick={() => navigate("/contact")}
-              >
-                Contact
-              </button>
-            </li>
+          <button
+            className="btn btn-link nav-link text-white p-0"
+            onClick={() => navigate("/contact-us")}
+          >
+            📞 Contact
+          </button>
+        </div>
 
-            {/* Orders */}
-            {isAuthenticated && (
-              <li className="nav-item">
-                <button
-                  className="nav-link btn btn-link text-white"
-                  onClick={() => navigate("/orders")}
-                >
-                  My Orders
-                </button>
-              </li>
-            )}
-          </ul>
+        {/* RIGHT SIDE */}
+        <div className="d-flex align-items-center gap-3">
 
           {/* SEARCH BAR */}
-          <form className="d-flex me-3" onSubmit={handleSearch}>
+          <form onSubmit={handleSearch} className="d-none d-md-block">
             <input
-              className="form-control me-2"
-              type="search"
-              placeholder="Search dishes, restaurants…"
+              className="form-control form-control-sm"
+              style={{ width: "220px" }}
+              placeholder="Search food..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-            <button className="btn btn-outline-light" type="submit">
-              🔍
-            </button>
           </form>
 
-          {/* CART ICON */}
-          <div
-            className="position-relative text-white fs-5 me-3"
-            style={{ cursor: "pointer" }}
-            onClick={() => navigate("/cart")}
-          >
-            🛒
-            {cartCount > 0 && (
-              <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark">
-                {cartCount}
-              </span>
-            )}
-          </div>
+          {/* MENU DROPDOWN */}
+          <div className="dropdown">
+            <button
+              className="btn btn-outline-light btn-sm dropdown-toggle"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              ☰ Menu
+            </button>
 
-          {/* USER LOGIN / DROPDOWN */}
-          {!isAuthenticated ? (
-            <div>
-              <button
-                className="btn btn-outline-light me-2"
-                onClick={() => navigate("/login")}
-              >
-                Login
-              </button>
-              <button
-                className="btn btn-light"
-                onClick={() => navigate("/register")}
-              >
-                Register
-              </button>
-            </div>
-          ) : (
-            <div className="dropdown">
-              <button
-                className="btn btn-success dropdown-toggle fw-bold"
-                type="button"
-                id="userDropdown"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-                style={{ borderRadius: "999px" }}
-              >
-                👤 {user?.name || "User"}
-              </button>
-              <ul
-                className="dropdown-menu dropdown-menu-end"
-                aria-labelledby="userDropdown"
-              >
-                <li>
-                  <button
-                    className="dropdown-item"
-                    onClick={() => navigate("/profile")}
-                  >
-                    Profile
-                  </button>
-                </li>
-                <li>
-                  <button
-                    className="dropdown-item"
-                    onClick={() => navigate("/orders")}
-                  >
-                    My Orders
-                  </button>
-                </li>
-                <li>
-                  <hr className="dropdown-divider" />
-                </li>
+            <ul className="dropdown-menu dropdown-menu-end shadow">
+              {!isAuthenticated ? (
+                <>
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => navigate("/login")}
+                    >
+                      🔐 Login
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => navigate("/register")}
+                    >
+                      📝 Register
+                    </button>
+                  </li>
+                </>
+              ) : (
                 <li>
                   <button
                     className="dropdown-item text-danger"
                     onClick={() => dispatch(logout())}
                   >
-                    Logout
+                    🚪 Logout
                   </button>
                 </li>
-              </ul>
-            </div>
-          )}
+              )}
+            </ul>
+          </div>
+
+          {/* CART */}
+          <div
+            className="position-relative text-white fs-5"
+            style={{ cursor: "pointer" }}
+            onClick={() => navigate("/cart")}
+          >
+            🛒
+            {cartCount > 0 && (
+              <span className="badge bg-warning text-dark position-absolute top-0 start-100 translate-middle">
+                {cartCount}
+              </span>
+            )}
+          </div>
+
         </div>
       </div>
     </nav>
