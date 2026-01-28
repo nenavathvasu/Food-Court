@@ -11,7 +11,7 @@ import ContactUs from "./pages/ContactUs";
 
 import Cart from "./features/cart/Cart";
 import Veg from "./features/menu/Veg";
-import Nonveg from "./features/menu/Nonveg"; // lowercase file fix
+import Nonveg from "./features/menu/NonVeg"; // lowercase file fix
 import Orders from "./features/orders/Orders";
 import LoginPage from "./features/auth/LoginPage";
 import RegisterPage from "./features/auth/RegisterPage";
