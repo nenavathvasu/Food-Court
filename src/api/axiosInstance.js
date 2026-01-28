@@ -7,14 +7,19 @@ const api = axios.create({
   },
 });
 
-// Attach token
+// Attach token EXCEPT for public order routes
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
-  if (token) config.headers.Authorization = `Bearer ${token}`;
+
+  // ❌ Do NOT attach token for orders endpoints
+  if (token && !config.url.includes("/orders")) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
   return config;
 });
 
-// Auto logout on 401
+// Auto logout on 401 (keep this for login-protected features if added later)
 api.interceptors.response.use(
   (res) => res,
   (err) => {

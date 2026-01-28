@@ -1,18 +1,20 @@
-// src/App.jsx
 import React, { Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 
+// Components
 import Navbar from "./components/Navbar";
+
+// Pages & Features
+import Home from "./pages/Home";
+import ContactUs from "./pages/ContactUs";
 
 import Cart from "./features/cart/Cart";
 import Veg from "./features/menu/Veg";
-import Nonveg from "./features/menu/NonVeg";
+import Nonveg from "./features/menu/Nonveg"; // lowercase file fix
 import Orders from "./features/orders/Orders";
 import LoginPage from "./features/auth/LoginPage";
 import RegisterPage from "./features/auth/RegisterPage";
-import Home from "./pages/Home";
-import ContactUs from "./pages/ContactUs";
 
 export default function App() {
   return (
@@ -20,7 +22,7 @@ export default function App() {
       {/* Global Navbar */}
       <Navbar />
 
-      {/* Page Wrapper */}
+      {/* Main Page Wrapper */}
       <main className="container-fluid px-0" style={{ minHeight: "100vh" }}>
         <Suspense
           fallback={
@@ -47,7 +49,7 @@ export default function App() {
             <Route path="/orders" element={<Orders />} />
             <Route path="/contact-us" element={<ContactUs />} />
 
-            {/* Fallback */}
+            {/* Fallback route */}
             <Route path="*" element={<Navigate to="/home" replace />} />
           </Routes>
         </Suspense>

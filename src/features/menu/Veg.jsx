@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-
 import { toast } from "react-toastify";
-import 'bootstrap/dist/css/bootstrap.min.css';
-import './Veg.css'; // Optional: for theme-specific CSS
+import "bootstrap/dist/css/bootstrap.min.css";
+import "./Veg.css";
+
 import { fetchVeg } from "./vegSlice";
-import { addToCart } from "../cart/cartSlice";
+import { addToCart } from "../cart/cartSlice"; // ✅ Correct import
 
 function Veg() {
   const dispatch = useDispatch();
@@ -94,8 +94,6 @@ function Veg() {
         <h2 className="display-5 fw-bold text-success">🌿 Fresh & Delicious Veg Delights!</h2>
         <p className="lead text-muted">Healthy, tasty, and full of flavor – your perfect meal awaits!</p>
       </div>
-
-      <h1 className="text-center mb-4">🌱 Veg Section</h1>
 
       {/* Theme Switcher */}
       <div className="d-flex justify-content-center mb-4 gap-2">

@@ -1,13 +1,16 @@
-// src/features/orders/orderSlice.jsx
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-// Async thunk to fetch orders from backend
+// Async thunk to fetch all orders
 export const fetchAllOrders = createAsyncThunk(
   "orders/fetchAllOrders",
-  async () => {
-    const response = await axios.get("/api/v1/orders"); // your backend API
-    return response.data;
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await axios.get("https://backend-express-nu.vercel.app/api/v1/orders");
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || "Failed to fetch orders");
+    }
   }
 );
 
@@ -23,6 +26,7 @@ const ordersSlice = createSlice({
     builder
       .addCase(fetchAllOrders.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
       .addCase(fetchAllOrders.fulfilled, (state, action) => {
         state.loading = false;
@@ -30,7 +34,7 @@ const ordersSlice = createSlice({
       })
       .addCase(fetchAllOrders.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
+        state.error = action.payload;
       });
   },
 });
