@@ -20,84 +20,97 @@ function Navbar() {
   };
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow-sm px-3">
-      <div className="container-fluid">
+    <nav className="navbar navbar-expand-lg bg-dark navbar-dark shadow-sm py-2 px-4 sticky-top">
 
-        {/* LEFT SIDE : LOGO + LINKS */}
-        <div className="d-flex align-items-center gap-4">
+      {/* LEFT — LOGO */}
+      <span
+        className="navbar-brand fw-bold fs-4 text-warning"
+        style={{ cursor: "pointer" }}
+        onClick={() => navigate("/home")}
+      >
+        🍔 FoodCourt
+      </span>
 
-          {/* LOGO */}
-          <span
-            className="navbar-brand fw-bold fs-4 mb-0"
-            style={{ cursor: "pointer" }}
-            onClick={() => navigate("/home")}
-          >
-            🍔 FoodCourt
-          </span>
+      {/* MOBILE TOGGLE */}
+      <button
+        className="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#mainNavbar"
+      >
+        <span className="navbar-toggler-icon"></span>
+      </button>
 
-          {/* NAV LINKS */}
-          <button
-            className="btn btn-link nav-link text-white p-0"
-            onClick={() => navigate("/veg")}
-          >
-            🥗 Veg
-          </button>
+      {/* CENTER + RIGHT CONTENT */}
+      <div className="collapse navbar-collapse justify-content-between" id="mainNavbar">
 
-          <button
-            className="btn btn-link nav-link text-white p-0"
-            onClick={() => navigate("/nonveg")}
-          >
-            🍗 Non-Veg
-          </button>
-
-          <button
-            className="btn btn-link nav-link text-white p-0"
-            onClick={() => navigate("/contact-us")}
-          >
-            📞 Contact
-          </button>
-        </div>
+        {/* CENTER NAV LINKS */}
+        <ul className="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-4 text-center">
+          <li className="nav-item">
+            <span className="nav-link" onClick={() => navigate("/home")}>Home</span>
+          </li>
+          <li className="nav-item">
+            <span className="nav-link" onClick={() => navigate("/veg")}>Veg</span>
+          </li>
+          <li className="nav-item">
+            <span className="nav-link" onClick={() => navigate("/nonveg")}>Non-Veg</span>
+          </li>
+          <li className="nav-item">
+            <span className="nav-link" onClick={() => navigate("/offers")}>Offers</span>
+          </li>
+          <li className="nav-item">
+            <span className="nav-link" onClick={() => navigate("/contact-us")}>Contact Us</span>
+          </li>
+        </ul>
 
         {/* RIGHT SIDE */}
         <div className="d-flex align-items-center gap-3">
 
-          {/* SEARCH BAR */}
-          <form onSubmit={handleSearch} className="d-none d-md-block">
+          {/* SEARCH */}
+          <form onSubmit={handleSearch} className="d-none d-lg-block">
             <input
-              className="form-control form-control-sm"
-              style={{ width: "220px" }}
+              className="form-control form-control-sm rounded-pill px-3"
+              style={{ width: "180px" }}
               placeholder="Search food..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
           </form>
 
+          {/* CART */}
+          <div
+            className="position-relative text-white fs-5"
+            style={{ cursor: "pointer" }}
+            onClick={() => navigate("/cart")}
+          >
+            🛒
+            {cartCount > 0 && (
+              <span className="badge bg-warning text-dark position-absolute top-0 start-100 translate-middle">
+                {cartCount}
+              </span>
+            )}
+          </div>
+
           {/* MENU DROPDOWN */}
           <div className="dropdown">
             <button
-              className="btn btn-outline-light btn-sm dropdown-toggle"
+              className="btn btn-outline-light btn-sm rounded-pill px-3"
               data-bs-toggle="dropdown"
-              aria-expanded="false"
             >
-              ☰ Menu
+              ☰
             </button>
 
             <ul className="dropdown-menu dropdown-menu-end shadow">
+
               {!isAuthenticated ? (
                 <>
                   <li>
-                    <button
-                      className="dropdown-item"
-                      onClick={() => navigate("/login")}
-                    >
+                    <button className="dropdown-item" onClick={() => navigate("/login")}>
                       🔐 Login
                     </button>
                   </li>
                   <li>
-                    <button
-                      className="dropdown-item"
-                      onClick={() => navigate("/register")}
-                    >
+                    <button className="dropdown-item" onClick={() => navigate("/register")}>
                       📝 Register
                     </button>
                   </li>
@@ -112,21 +125,20 @@ function Navbar() {
                   </button>
                 </li>
               )}
-            </ul>
-          </div>
 
-          {/* CART */}
-          <div
-            className="position-relative text-white fs-5"
-            style={{ cursor: "pointer" }}
-            onClick={() => navigate("/cart")}
-          >
-            🛒
-            {cartCount > 0 && (
-              <span className="badge bg-warning text-dark position-absolute top-0 start-100 translate-middle">
-                {cartCount}
-              </span>
-            )}
+              <li><hr className="dropdown-divider" /></li>
+
+              <li>
+                <button className="dropdown-item" onClick={() => navigate("/profile")}>
+                  👤 Profile
+                </button>
+              </li>
+              <li>
+                <button className="dropdown-item" onClick={() => navigate("/orders")}>
+                  📦 My Orders
+                </button>
+              </li>
+            </ul>
           </div>
 
         </div>
