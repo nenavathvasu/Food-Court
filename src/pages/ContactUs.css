@@ -1,50 +1,70 @@
+.contact-page {
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  min-height: 100vh;
+  color: #fff;
+}
+
 .contact-hero {
-  background: linear-gradient(135deg, #ff9a9e, #fad0c4);
-  padding: 60px 20px;
+  height: 280px;
+  background: linear-gradient(90deg, #ff512f, #dd2476);
 }
 
 .contact-card {
-  background: white;
-  padding: 25px;
-  border-radius: 12px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+  transition: 0.3s;
 }
 
-.contact-form {
-  background: #ffffff;
-  padding: 25px;
-  border-radius: 12px;
+.contact-card:hover {
+  transform: translateY(-6px);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.contact-card .icon {
+  font-size: 32px;
+  margin-bottom: 10px;
+}
+
+.contact-form,
+.business-hours {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
 }
 
 .btn-contact {
-  background: linear-gradient(135deg, #ff6b6b, #ff9472);
-  color: white;
+  background: linear-gradient(45deg, #ff512f, #dd2476);
   border: none;
-  font-weight: 600;
+  color: white;
+  font-weight: bold;
 }
 
 .btn-contact:hover {
   opacity: 0.9;
 }
 
-.map-box {
-  height: 100%;
-  min-height: 350px;
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.faq-section .accordion-button {
-  font-weight: 500;
+.map-box iframe {
+  border-radius: 15px;
 }
 
 .social-icons span {
-  font-size: 24px;
+  font-size: 26px;
   margin: 0 10px;
   cursor: pointer;
-  transition: transform 0.2s;
+  transition: 0.3s;
 }
 
 .social-icons span:hover {
   transform: scale(1.2);
+}
+
+.faq-section .accordion-button {
+  background-color: #1f1f1f;
+  color: white;
+}
+
+.faq-section .accordion-body {
+  background-color: #2a2a2a;
+  color: #ddd;
 }

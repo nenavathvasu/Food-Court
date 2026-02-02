@@ -5,6 +5,7 @@ import vegReducer from "../features/menu/vegSlice";
 import nonvegReducer from "../features/menu/nonvegSlice";
 import authReducer from "../features/auth/authSlice";
 
+
 const store = configureStore({
   reducer: {
     cart: cartReducer,     // cart items and placeOrder

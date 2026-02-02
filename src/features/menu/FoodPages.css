@@ -1,0 +1,52 @@
+.food-page-container {
+  background-color: #f7f3f0; /* soft cream background */
+  min-height: 100vh;
+  padding-bottom: 50px;
+}
+
+.food-card {
+  border-radius: 15px;
+  overflow: hidden;
+  transition: transform 0.2s;
+  cursor: pointer;
+}
+.food-card:hover {
+  transform: scale(1.03);
+}
+
+.food-img {
+  height: 180px;
+  object-fit: cover;
+}
+
+.wishlist-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.quickview-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1050;
+}
+.quickview-card {
+  background: #fff;
+  padding: 20px;
+  border-radius: 15px;
+  width: 300px;
+  text-align: center;
+}
+.quickview-card img {
+  width: 100%;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}

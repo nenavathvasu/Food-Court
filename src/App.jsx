@@ -11,7 +11,7 @@ import ContactUs from "./pages/ContactUs";
 
 import Cart from "./features/cart/Cart";
 import Veg from "./features/menu/Veg";
-import Nonveg from "./features/menu/NonVeg"; // lowercase file fix
+import Nonveg from "./features/menu/NonVeg";
 import Orders from "./features/orders/Orders";
 import LoginPage from "./features/auth/LoginPage";
 import RegisterPage from "./features/auth/RegisterPage";
@@ -19,10 +19,8 @@ import RegisterPage from "./features/auth/RegisterPage";
 export default function App() {
   return (
     <BrowserRouter>
-      {/* Global Navbar */}
       <Navbar />
 
-      {/* Main Page Wrapper */}
       <main className="container-fluid px-0" style={{ minHeight: "100vh" }}>
         <Suspense
           fallback={
@@ -34,7 +32,6 @@ export default function App() {
           }
         >
           <Routes>
-            {/* Redirect root */}
             <Route path="/" element={<Navigate to="/home" replace />} />
 
             {/* Auth */}
@@ -49,7 +46,7 @@ export default function App() {
             <Route path="/orders" element={<Orders />} />
             <Route path="/contact-us" element={<ContactUs />} />
 
-            {/* Fallback route */}
+            {/* Fallback */}
             <Route path="*" element={<Navigate to="/home" replace />} />
           </Routes>
         </Suspense>

@@ -21,8 +21,6 @@ function Navbar() {
 
   return (
     <nav className="navbar navbar-expand-lg bg-dark navbar-dark shadow-sm py-2 px-4 sticky-top">
-
-      {/* LEFT — LOGO */}
       <span
         className="navbar-brand fw-bold fs-4 text-warning"
         style={{ cursor: "pointer" }}
@@ -31,7 +29,6 @@ function Navbar() {
         🍔 FoodCourt
       </span>
 
-      {/* MOBILE TOGGLE */}
       <button
         className="navbar-toggler"
         type="button"
@@ -41,10 +38,8 @@ function Navbar() {
         <span className="navbar-toggler-icon"></span>
       </button>
 
-      {/* CENTER + RIGHT CONTENT */}
       <div className="collapse navbar-collapse justify-content-between" id="mainNavbar">
 
-        {/* CENTER NAV LINKS */}
         <ul className="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-4 text-center">
           <li className="nav-item">
             <span className="nav-link" onClick={() => navigate("/home")}>Home</span>
@@ -55,18 +50,20 @@ function Navbar() {
           <li className="nav-item">
             <span className="nav-link" onClick={() => navigate("/nonveg")}>Non-Veg</span>
           </li>
+          
+
           <li className="nav-item">
             <span className="nav-link" onClick={() => navigate("/offers")}>Offers</span>
+          </li>
+          <li className="nav-item">
+            <span className="nav-link" onClick={() => navigate("/orders")}>Orders</span>
           </li>
           <li className="nav-item">
             <span className="nav-link" onClick={() => navigate("/contact-us")}>Contact Us</span>
           </li>
         </ul>
 
-        {/* RIGHT SIDE */}
         <div className="d-flex align-items-center gap-3">
-
-          {/* SEARCH */}
           <form onSubmit={handleSearch} className="d-none d-lg-block">
             <input
               className="form-control form-control-sm rounded-pill px-3"
@@ -77,7 +74,6 @@ function Navbar() {
             />
           </form>
 
-          {/* CART */}
           <div
             className="position-relative text-white fs-5"
             style={{ cursor: "pointer" }}
@@ -91,7 +87,6 @@ function Navbar() {
             )}
           </div>
 
-          {/* MENU DROPDOWN */}
           <div className="dropdown">
             <button
               className="btn btn-outline-light btn-sm rounded-pill px-3"
@@ -99,9 +94,7 @@ function Navbar() {
             >
               ☰
             </button>
-
             <ul className="dropdown-menu dropdown-menu-end shadow">
-
               {!isAuthenticated ? (
                 <>
                   <li>
@@ -125,9 +118,7 @@ function Navbar() {
                   </button>
                 </li>
               )}
-
               <li><hr className="dropdown-divider" /></li>
-
               <li>
                 <button className="dropdown-item" onClick={() => navigate("/profile")}>
                   👤 Profile
@@ -140,7 +131,6 @@ function Navbar() {
               </li>
             </ul>
           </div>
-
         </div>
       </div>
     </nav>
