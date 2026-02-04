@@ -1,7 +1,7 @@
 import api from "./api/axiosInstance"; // uses /api base
 
 
-const BASE_URL = "https://backend-express-nu.vercel.app";
+const BASE_URL = "https://backend-express-nu.vercel.app/";
 
 /* ================= MENU ================= */
 
