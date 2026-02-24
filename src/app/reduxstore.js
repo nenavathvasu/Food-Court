@@ -1,7 +1,9 @@
+// api/axiosInstance.js
 import axios from "axios";
 
+// Axios instance
 const api = axios.create({
-  baseURL: "https://backend-express-nu.vercel.app/",
+  baseURL: "https://backend-express-nu.vercel.app/api/v1", // Updated base URL
   headers: {
     "Content-Type": "application/json",
   },

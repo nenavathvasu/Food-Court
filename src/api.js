@@ -1,22 +1,18 @@
-import api from "./api/axiosInstance"; // uses /api base
-
-
-const BASE_URL = "https://backend-express-nu.vercel.app/";
+// services/api.js
+import api from "../api/axiosInstance"; // uses /api base
 
 /* ================= MENU ================= */
 
 // GET Veg Items
+export const fetchVegItems = async () =>
+  (await api.get("/menu/veg")).data;
+
+// GET Non-Veg Items
+export const fetchNonVegItems = async () =>
+  (await api.get("/menu/nonveg")).data;
+
 /* ================= ORDERS ================= */
 
-// POST Order ✅ FIXED
-
-
-export const fetchVegItems = async () =>
-  (await api.get("/menu/getveg")).data;
-
-export const fetchNonVegItems = async () =>
-  (await api.get("/menu/getnonveg")).data;
-
+// POST Order
 export const sendOrderToServer = async (order) =>
   (await api.post("/orders/placeorder", order)).data;
-
