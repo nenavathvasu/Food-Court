@@ -1,0 +1,24 @@
+.dairy-page {
+  background: linear-gradient(135deg, #141e30, #243b55);
+  min-height: 100vh;
+  border-radius: 12px;
+}
+
+.dairy-card {
+  background: #1e293b;
+  border: none;
+  border-radius: 12px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dairy-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+}
+
+.dairy-img {
+  height: 180px;
+  object-fit: cover;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
