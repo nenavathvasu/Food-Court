@@ -7,12 +7,10 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      // Every request to /api/* gets forwarded to the backend
-      // The browser only sees localhost:5173 → no CORS issue
       "/api": {
-        target: "https://backend-express-nu.vercel.app",
-        changeOrigin: true,   // spoofs the Host header so the server accepts it
-        secure: true,         // allows HTTPS target
+        target: "http://localhost:3000", // ✅ http not https — backend is plain HTTP
+        changeOrigin: true,
+        secure: false,                   // ✅ false since it's not a real SSL cert
       },
     },
   },

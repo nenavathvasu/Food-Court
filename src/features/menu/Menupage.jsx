@@ -32,14 +32,13 @@ const useCountdown = () => {
 };
 const pad = (n) => String(n).padStart(2, "0");
 
-// ── Pagination component ──────────────────────────────────────
+// ── Pagination ────────────────────────────────────────────────
 function Pagination({ currentPage, totalPages, totalItems, itemsPerPage, onPageChange }) {
   if (totalPages <= 1) return null;
 
   const start = (currentPage - 1) * itemsPerPage + 1;
   const end   = Math.min(currentPage * itemsPerPage, totalItems);
 
-  // Build page number array with ellipsis logic
   const getPages = () => {
     if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
     const pages = [];
@@ -55,42 +54,25 @@ function Pagination({ currentPage, totalPages, totalItems, itemsPerPage, onPageC
 
   return (
     <div>
-      <p className="pagination__info">
-        Showing {start}–{end} of {totalItems} items
-      </p>
+      <p className="pagination__info">Showing {start}–{end} of {totalItems} items</p>
       <div className="pagination">
-        {/* Prev */}
-        <button
-          className="pagination__btn"
-          onClick={() => onPageChange(currentPage - 1)}
-          disabled={currentPage === 1}
-          title="Previous page"
-        >
+        <button className="pagination__btn" onClick={() => onPageChange(currentPage - 1)}
+          disabled={currentPage === 1} title="Previous page">
           <i className="bi bi-chevron-left" />
         </button>
-
-        {/* Page numbers */}
         {getPages().map((page, idx) =>
           page === "..." ? (
             <span key={`dots-${idx}`} className="pagination__dots">…</span>
           ) : (
-            <button
-              key={page}
+            <button key={page}
               className={`pagination__btn${currentPage === page ? " active" : ""}`}
-              onClick={() => onPageChange(page)}
-            >
+              onClick={() => onPageChange(page)}>
               {page}
             </button>
           )
         )}
-
-        {/* Next */}
-        <button
-          className="pagination__btn"
-          onClick={() => onPageChange(currentPage + 1)}
-          disabled={currentPage === totalPages}
-          title="Next page"
-        >
+        <button className="pagination__btn" onClick={() => onPageChange(currentPage + 1)}
+          disabled={currentPage === totalPages} title="Next page">
           <i className="bi bi-chevron-right" />
         </button>
       </div>
@@ -114,7 +96,7 @@ const sliderSettings = {
 export default function MenuPage({
   title, subtitle, tag, heroImage,
   fetchAction, stateKey,
-  setPageAction, resetPageAction, paginationSelector,
+  setPageAction, resetPageAction,
   wishlistKey, offerText,
 }) {
   const dispatch  = useDispatch();
@@ -122,23 +104,31 @@ export default function MenuPage({
   const location  = useLocation();
   const timer     = useCountdown();
 
-  const sliceState           = useSelector((s) => s[stateKey]);
+  const sliceState = useSelector((s) => s[stateKey]);
   const { data: items = [], loading, currentPage, itemsPerPage } = sliceState;
-  const cartCount            = useSelector((s) => s.cart.items.reduce((a, i) => a + i.quantity, 0));
 
-  // Pre-fill search from URL query param e.g. /veg?q=biryani
+  // ✅ FIX: cart count reads from items array correctly
+  const cartCount = useSelector((s) =>
+    (s.cart.items || []).reduce((a, i) => a + (i.quantity || 0), 0)
+  );
+
   const urlQuery = new URLSearchParams(location.search).get("q") || "";
   const [search,      setSearch]      = useState(urlQuery);
   const [debSearch,   setDebSearch]   = useState(urlQuery);
   const [sortOrder,   setSortOrder]   = useState("");
   const [selCategory, setSelCategory] = useState("All");
-  const wishlistItems = useSelector((s) => s.wishlist.items);
-  const wishlist = wishlistItems.map(i => i._id || i.id);
-  const [showTop,    setShowTop]    = useState(false);
-  const [quickItem,  setQuickItem]  = useState(null);
-  const [showOffer,  setShowOffer]  = useState(true);
+  const [showTop,     setShowTop]     = useState(false);
+  const [quickItem,   setQuickItem]   = useState(null);
+  const [showOffer,   setShowOffer]   = useState(true);
 
-  // Sync search term when URL ?q= param changes
+  const wishlistItems = useSelector((s) => s.wishlist.items);
+  // ✅ FIX: wishlist tracking uses _id (MongoDB ObjectId string), falls back to numeric id
+  const wishlist = useMemo(
+    () => wishlistItems.map(i => i._id || String(i.id)),
+    [wishlistItems]
+  );
+
+  // Sync URL search param
   useEffect(() => {
     const q = new URLSearchParams(location.search).get("q") || "";
     setSearch(q);
@@ -146,47 +136,44 @@ export default function MenuPage({
     if (q) dispatch(resetPageAction());
   }, [location.search]);
 
-  // Fetch on mount
   useEffect(() => { dispatch(fetchAction()); }, [dispatch, fetchAction]);
 
-  // Reset to page 1 whenever filters change
   useEffect(() => { dispatch(resetPageAction()); }, [debSearch, selCategory, sortOrder]);
 
-  // Scroll top button
   useEffect(() => {
     const fn = () => setShowTop(window.scrollY > 400);
     window.addEventListener("scroll", fn);
     return () => window.removeEventListener("scroll", fn);
   }, []);
 
-  // Persist wishlist
-  // wishlist is persisted by wishlistSlice automatically
-
-  // Debounce search
   useEffect(() => {
     const id = setTimeout(() => setDebSearch(search), 400);
     return () => clearTimeout(id);
   }, [search]);
 
-  // Categories
+  // ✅ FIX: categories derived from actual backend `category` field
+  // Backend defaults: Veg items → "Veg", NonVeg items → "Non-Veg"
+  // Sub-categories come from whatever category string is stored in DB
   const categories = useMemo(() => {
     if (!items.length) return ["All"];
-    return ["All", ...new Set(items.map(i => i.category || "Other"))];
+    const unique = [...new Set(items.map(i => i.category).filter(Boolean))];
+    return ["All", ...unique];
   }, [items]);
 
-  // Filter + sort (full list, before pagination)
+  // ✅ FIX: popularity sort uses `reviews` count (backend has no `popularity` field)
   const filteredItems = useMemo(() => {
     let list = [...items];
-    if (debSearch)             list = list.filter(i => i.name.toLowerCase().includes(debSearch.toLowerCase()));
-    if (selCategory !== "All") list = list.filter(i => i.category === selCategory);
+    if (debSearch)
+      list = list.filter(i => i.name?.toLowerCase().includes(debSearch.toLowerCase()));
+    if (selCategory !== "All")
+      list = list.filter(i => i.category === selCategory);
     if (sortOrder === "low")      list.sort((a, b) => a.price - b.price);
     if (sortOrder === "high")     list.sort((a, b) => b.price - a.price);
-    if (sortOrder === "rating")   list.sort((a, b) => (b.rating || 0) - (a.rating || 0));
-    if (sortOrder === "popular")  list.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
+    if (sortOrder === "rating")   list.sort((a, b) => (b.rating  || 0) - (a.rating  || 0));
+    if (sortOrder === "popular")  list.sort((a, b) => (b.reviews || 0) - (a.reviews || 0)); // ✅ uses `reviews`
     return list;
   }, [items, debSearch, selCategory, sortOrder]);
 
-  // Pagination — slice filteredItems into the current page
   const { pageItems, totalPages, totalItems } = useMemo(() => {
     const totalItems = filteredItems.length;
     const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
@@ -196,18 +183,26 @@ export default function MenuPage({
     return { pageItems, totalPages, totalItems };
   }, [filteredItems, currentPage, itemsPerPage]);
 
-  // AI recommendations (top 8 by price)
+  // ✅ FIX: "Chef's Top Picks" — sort by `bestseller` first, then by `rating`
+  // Backend has `bestseller: Boolean` and `rating: Number`
   const recommended = useMemo(() =>
-    [...items].sort((a, b) => b.price - a.price).slice(0, 8), [items]);
+    [...items]
+      .sort((a, b) => {
+        if (b.bestseller !== a.bestseller) return b.bestseller ? 1 : -1;
+        return (b.rating || 0) - (a.rating || 0);
+      })
+      .slice(0, 8),
+    [items]
+  );
 
-  // Handlers
   const handleAdd = useCallback((item) => {
     dispatch(addToCart({ ...item, quantity: 1 }));
     toast.success(`${item.name} added to cart 🛒`);
   }, [dispatch]);
 
   const toggleWishlist = useCallback((id) => {
-    const item = items.find(i => (i._id || i.id) === id);
+    // ✅ FIX: match by _id (string) or numeric id — backend returns both
+    const item = items.find(i => (i._id || String(i.id)) === id);
     if (item) {
       const isIn = wishlist.includes(id);
       dispatch(reduxToggleWishlist(item));
@@ -217,9 +212,11 @@ export default function MenuPage({
 
   const handlePageChange = (page) => {
     dispatch(setPageAction(page));
-    // Smooth scroll back to the filter bar
     document.getElementById("menu-filter-anchor")?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
+
+  // ✅ FIX: item key always uses _id (MongoDB ObjectId) with numeric id as fallback
+  const itemKey = (item) => item._id || String(item.id);
 
   return (
     <div style={{ minHeight: "100vh" }}>
@@ -263,18 +260,41 @@ export default function MenuPage({
         </div>
       </section>
 
-      {/* ── AI Picks slider ── */}
+      {/* ── Chef's Top Picks slider ── */}
       {recommended.length > 0 && (
         <section className="menu-ai-section">
           <div className="container">
-            <h5><i className="bi bi-stars" /> Chef's Top Picks</h5>
+            <h5>
+              <i className="bi bi-stars" /> Chef's Top Picks
+              {/* ✅ Show bestseller badge hint */}
+            </h5>
             <Slider {...sliderSettings}>
               {recommended.map(item => (
-                <div key={item._id || item.id}>
+                <div key={itemKey(item)}>
                   <motion.div className="menu-ai-card" whileHover={{ scale: 1.04 }} onClick={() => setQuickItem(item)}>
                     <img src={item.image} alt={item.name} loading="lazy" />
+                    {/* ✅ Show bestseller ribbon if flagged in backend */}
+                    {item.bestseller && (
+                      <span style={{
+                        position: "absolute", top: 6, left: 6,
+                        background: "#ff6b35", color: "#fff",
+                        fontSize: "0.6rem", fontWeight: 700,
+                        padding: "2px 6px", borderRadius: 4,
+                        textTransform: "uppercase", letterSpacing: 0.5,
+                      }}>
+                        Bestseller
+                      </span>
+                    )}
                     <small>{item.name}</small>
-                    <span>₹{item.price}</span>
+                    <span>
+                      ₹{item.price}
+                      {/* ✅ Show original price + discount if set in backend */}
+                      {item.discount > 0 && (
+                        <del style={{ fontSize: "0.75rem", color: "#999", marginLeft: 4 }}>
+                          ₹{item.originalPrice}
+                        </del>
+                      )}
+                    </span>
                   </motion.div>
                 </div>
               ))}
@@ -285,7 +305,6 @@ export default function MenuPage({
 
       {/* ── Filter bar ── */}
       <div className="container">
-        {/* Anchor for scroll-to on page change */}
         <div id="menu-filter-anchor" style={{ scrollMarginTop: "80px" }} />
 
         <div className="menu-filter-bar">
@@ -306,7 +325,7 @@ export default function MenuPage({
               <option value="low">Price ↑</option>
               <option value="high">Price ↓</option>
               <option value="rating">Rating</option>
-              <option value="popular">Popularity</option>
+              <option value="popular">Most Reviewed</option>{/* ✅ label matches what we actually sort by */}
             </select>
             <div className="menu-filter-bar__chips">
               {categories.map(cat => (
@@ -357,27 +376,27 @@ export default function MenuPage({
           </div>
         )}
 
-        {/* ── Items grid (current page only) ── */}
+        {/* ── Items grid ── */}
         {!loading && pageItems.length > 0 && (
           <>
             <motion.div className="menu-grid"
               initial="hidden" animate="visible"
               variants={{ visible: { transition: { staggerChildren: 0.04 } } }}>
               {pageItems.map(item => (
-                <motion.div key={item._id || item.id}
+                <motion.div key={itemKey(item)}
                   variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}>
                   <ProductCard
                     item={item}
                     onAddToCart={handleAdd}
                     onWishlistToggle={toggleWishlist}
-                    isWishlisted={wishlist.includes(item._id || item.id)}
+                    // ✅ FIX: consistent id comparison — both sides use same format
+                    isWishlisted={wishlist.includes(item._id || String(item.id))}
                     onQuickView={setQuickItem}
                   />
                 </motion.div>
               ))}
             </motion.div>
 
-            {/* ── Pagination ── */}
             <Pagination
               currentPage={Math.min(currentPage, totalPages)}
               totalPages={totalPages}
@@ -415,7 +434,7 @@ export default function MenuPage({
             onClose={() => setQuickItem(null)}
             onAddToCart={handleAdd}
             onWishlistToggle={toggleWishlist}
-            isWishlisted={wishlist.includes(quickItem._id || quickItem.id)}
+            isWishlisted={wishlist.includes(quickItem._id || String(quickItem.id))}
           />
         )}
       </AnimatePresence>

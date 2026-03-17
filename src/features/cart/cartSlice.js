@@ -1,5 +1,5 @@
 // src/features/cart/cartSlice.js
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, createSelector } from "@reduxjs/toolkit"; // ✅ added createSelector
 import { sendOrderToServer } from "../../api/menuApi";
 
 const getId = (item) => item._id || item.id;
@@ -48,7 +48,7 @@ const cartSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(placeOrder.pending,   (state) => { state.loading = true; state.orderSuccess = false; })
+      .addCase(placeOrder.pending,   (state) => { state.loading = true;  state.orderSuccess = false; })
       .addCase(placeOrder.fulfilled, (state) => { state.loading = false; state.items = []; state.orderSuccess = true; })
       .addCase(placeOrder.rejected,  (state) => { state.loading = false; });
   },
@@ -61,15 +61,22 @@ export const {
 
 export default cartSlice.reducer;
 
-// Selector
-export const selectCartTotals = (state) => {
-  const subtotal        = state.cart.items.reduce((s, i) => s + i.price * i.quantity, 0);
-  const discountAmount  = Math.round((subtotal * (state.cart.discountPercentage || 0)) / 100);
-  const afterDiscount   = subtotal - discountAmount;
-  const gst             = Math.round(afterDiscount * 0.05);
-  const delivery        = subtotal > 0 ? 25 : 0;
-  const handling        = subtotal > 0 ? 2 : 0;
-  const smallCart       = subtotal > 0 && subtotal < 100 ? 20 : 0;
-  const total           = afterDiscount + gst + delivery + handling + smallCart;
-  return { subtotal, discountAmount, gst, delivery, handling, smallCart, total };
-};
+// ✅ FIX: memoized with createSelector — returns same reference when inputs unchanged
+// Without this, every useSelector call gets a new object → warning + infinite rerenders
+const selectCartItems    = (state) => state.cart.items;
+const selectCartDiscount = (state) => state.cart.discountPercentage || 0;
+
+export const selectCartTotals = createSelector(
+  [selectCartItems, selectCartDiscount],
+  (items, discountPercentage) => {
+    const subtotal       = items.reduce((s, i) => s + i.price * i.quantity, 0);
+    const discountAmount = Math.round((subtotal * discountPercentage) / 100);
+    const afterDiscount  = subtotal - discountAmount;
+    const gst            = Math.round(afterDiscount * 0.05);
+    const delivery       = subtotal > 0 ? 25 : 0;
+    const handling       = subtotal > 0 ? 2  : 0;
+    const smallCart      = subtotal > 0 && subtotal < 100 ? 20 : 0;
+    const total          = afterDiscount + gst + delivery + handling + smallCart;
+    return { subtotal, discountAmount, gst, delivery, handling, smallCart, total };
+  }
+);
