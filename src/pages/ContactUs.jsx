@@ -1,6 +1,6 @@
 // src/pages/ContactUs.jsx
 import React, { useState } from "react";
-import "../styles/Pages.css";
+import "../styles/pages.css";
 
 const CONTACTS = [
   { icon: "📧", title: "Email Support", text: "support@foodcourt.com" },
