@@ -1,202 +1,189 @@
+// src/components/Navbar.jsx
 import React, { useState, useEffect, useRef } from "react";
-import { useNavigate, NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { logout } from "../features/auth/authSlice";
 import { motion, AnimatePresence } from "framer-motion";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "./navbar.css";
+import { logout } from "../features/auth/authSlice";
+import { clearOrders } from "../features/orders/orderSlice";
+import "../styles/navbar.css";
 
-function Navbar() {
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
+const SUGGESTIONS = [
+  { name: "Chicken Biryani",      category: "Non-Veg", route: "/nonveg" },
+  { name: "Paneer Butter Masala", category: "Veg",     route: "/veg"    },
+  { name: "Grilled Burger",       category: "Fast Food",route: "/veg"   },
+  { name: "Masala Dosa",          category: "Veg",     route: "/veg"    },
+  { name: "Fish Curry",           category: "Non-Veg", route: "/nonveg" },
+  { name: "Mutton Biryani",       category: "Non-Veg", route: "/nonveg" },
+  { name: "Veg Biryani",          category: "Veg",     route: "/veg"    },
+  { name: "Chicken Wings",        category: "Non-Veg", route: "/nonveg" },
+  { name: "Dal Makhani",          category: "Veg",     route: "/veg"    },
+  { name: "Panner Tikka",         category: "Veg",     route: "/veg"    },
+];
 
-  const [search, setSearch] = useState("");
-  const [scrolled, setScrolled] = useState(false);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [showUserMenu, setShowUserMenu] = useState(false);
+const NAV_LINKS = [
+  { to: "/home",       label: "Home" },
+  { to: "/veg",        label: "Veg" },
+  { to: "/nonveg",     label: "Non‑Veg" },
+  { to: "/offers",     label: "Offers" },
+  { to: "/orders",     label: "Orders" },
+  { to: "/contact-us", label: "Contact" },
+];
+
+export default function Navbar() {
+  const navigate  = useNavigate();
+  const dispatch  = useDispatch();
+
+  const [search,         setSearch]         = useState("");
+  const [scrolled,       setScrolled]       = useState(false);
+  const [showSugg,       setShowSugg]       = useState(false);
+  const [showUserMenu,   setShowUserMenu]   = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const searchRef = useRef(null);
-  const userMenuRef = useRef(null);
 
-  const cartCount = useSelector((state) => state.cart?.items?.length || 0);
-  const wishlistCount = useSelector((state) => state.wishlist?.items?.length || 0);
-  const { isAuthenticated, user } = useSelector((state) => state.auth);
-  const notifications = useSelector((state) => state.notifications?.items || []); // assume
+  const searchRef  = useRef(null);
+  const userRef    = useRef(null);
 
-  // Mock search suggestions based on input
-  const suggestions = search
-    ? [
-        { name: "Chicken Biryani", category: "Non-Veg" },
-        { name: "Paneer Butter Masala", category: "Veg" },
-        { name: "Burger", category: "Fast Food" },
-        { name: "Pizza", category: "Fast Food" },
-      ].filter(item => item.name.toLowerCase().includes(search.toLowerCase()))
+  const cartCount      = useSelector((s) => s.cart.items.reduce((a, i) => a + i.quantity, 0));
+  const wishlistCount  = useSelector((s) => s.wishlist?.items?.length || 0);
+  const { isAuthenticated, user } = useSelector((s) => s.auth);
+
+  const filtered = search
+    ? SUGGESTIONS.filter(s => s.name.toLowerCase().includes(search.toLowerCase()))
     : [];
 
-  // Handle scroll effect
+  // Scroll handler
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    const fn = () => setScrolled(window.scrollY > 50);
+    window.addEventListener("scroll", fn);
+    return () => window.removeEventListener("scroll", fn);
   }, []);
 
-  // Close suggestions/user menu when clicking outside
+  // Click outside handler
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (searchRef.current && !searchRef.current.contains(event.target)) {
-        setShowSuggestions(false);
-      }
-      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
-        setShowUserMenu(false);
-      }
+    const fn = (e) => {
+      if (searchRef.current && !searchRef.current.contains(e.target)) setShowSugg(false);
+      if (userRef.current   && !userRef.current.contains(e.target))   setShowUserMenu(false);
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("mousedown", fn);
+    return () => document.removeEventListener("mousedown", fn);
   }, []);
+
+  const NON_VEG_KEYWORDS = ["chicken", "mutton", "fish", "prawn", "egg", "meat", "beef", "pork", "lamb", "kebab", "grill"];
+
+  const getRoute = (query) => {
+    const q = query.toLowerCase();
+    return NON_VEG_KEYWORDS.some(k => q.includes(k)) ? "/nonveg" : "/veg";
+  };
 
   const handleSearch = (e) => {
     e.preventDefault();
     if (!search.trim()) return;
-    navigate(`/veg?q=${encodeURIComponent(search.trim())}`);
-    setSearch("");
-    setShowSuggestions(false);
+    const route = getRoute(search.trim());
+    navigate(`${route}?q=${encodeURIComponent(search.trim())}`);
+    setSearch(""); setShowSugg(false);
   };
 
-  const handleSuggestionClick = (suggestion) => {
-    navigate(`/veg?q=${encodeURIComponent(suggestion.name)}`);
-    setSearch("");
-    setShowSuggestions(false);
+  const handleSuggClick = (sugg) => {
+    navigate(`${sugg.route}?q=${encodeURIComponent(sugg.name)}`);
+    setSearch(""); setShowSugg(false);
   };
-
-  const toggleMobileMenu = () => setShowMobileMenu(!showMobileMenu);
-
-  // Cart animation (optional: add pulse effect when count changes)
-  // We'll handle via CSS
 
   return (
     <>
-      <nav className={`modern-navbar ${scrolled ? "scrolled" : ""}`}>
-        <div className="container-fluid px-4 top-row">
-          {/* Brand with animation */}
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            className="brand"
-            onClick={() => navigate("/home")}
-          >
-            🍔 FoodCourt
-          </motion.div>
+      <nav className={`navbar${scrolled ? " scrolled" : ""}`}>
+        <div className="container navbar__inner">
 
-          {/* Search with suggestions */}
-          <div className="search-wrapper" ref={searchRef}>
-            <form onSubmit={handleSearch} className="search-box">
+          {/* Brand */}
+          <div className="navbar__brand" onClick={() => navigate("/home")}>
+            <div className="navbar__brand-icon">🍔</div>
+            <span>FoodCourt</span>
+          </div>
+
+          {/* Desktop nav */}
+          <nav className="navbar__links">
+            {NAV_LINKS.map(({ to, label }) => (
+              <NavLink key={to} to={to}
+                className={({ isActive }) => `navbar__link${isActive ? " active" : ""}`}>
+                {label}
+              </NavLink>
+            ))}
+          </nav>
+
+          {/* Search */}
+          <div className="navbar__search" ref={searchRef}>
+            <form onSubmit={handleSearch} style={{ position: "relative" }}>
+              <i className="bi bi-search navbar__search-icon" />
               <input
+                className="navbar__search-input"
                 type="text"
-                placeholder="Search for dishes..."
+                placeholder="Search dishes…"
                 value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                  setShowSuggestions(true);
-                }}
-                onFocus={() => setShowSuggestions(true)}
+                onChange={(e) => { setSearch(e.target.value); setShowSugg(true); }}
+                onFocus={() => setShowSugg(true)}
               />
-              <button type="submit" className="search-btn">
-                🔍
-              </button>
             </form>
             <AnimatePresence>
-              {showSuggestions && suggestions.length > 0 && (
-                <motion.ul
-                  className="suggestions-dropdown"
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                >
-                  {suggestions.map((item, index) => (
-                    <li key={index} onClick={() => handleSuggestionClick(item)}>
-                      <span className="suggestion-name">{item.name}</span>
-                      <span className="suggestion-category">{item.category}</span>
-                    </li>
+              {showSugg && filtered.length > 0 && (
+                <motion.div className="navbar__suggestions"
+                  initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}>
+                  {filtered.map((s, i) => (
+                    <div key={i} className="navbar__suggestion" onClick={() => handleSuggClick(s)}>
+                      <span>{s.name}</span>
+                      <span className="navbar__suggestion-cat">{s.category}</span>
+                    </div>
                   ))}
-                </motion.ul>
+                </motion.div>
               )}
             </AnimatePresence>
           </div>
 
-          {/* Right actions */}
-          <div className="actions">
-            {/* Notifications */}
-            <div className="notification-icon">
-              🔔
-              {notifications.length > 0 && (
-                <span className="badge">{notifications.length}</span>
-              )}
-            </div>
-
+          {/* Actions */}
+          <div className="navbar__actions">
             {/* Wishlist */}
-            <div className="wishlist-icon" onClick={() => navigate("/wishlist")}>
-              ❤️
-              {wishlistCount > 0 && (
-                <span className="badge">{wishlistCount}</span>
-              )}
-            </div>
+            <button className="navbar__action-btn" title="Wishlist" onClick={() => navigate("/wishlist")}>
+              <i className="bi bi-heart" />
+              {wishlistCount > 0 && <span className="count">{wishlistCount}</span>}
+            </button>
 
-            {/* Cart with animation */}
-            <motion.div
-              className="cart-icon"
-              onClick={() => navigate("/cart")}
-              whileTap={{ scale: 0.9 }}
-              animate={cartCount > 0 ? { scale: [1, 1.2, 1] } : {}}
-              transition={{ duration: 0.3 }}
-            >
-              🛒
-              {cartCount > 0 && (
-                <span className="cart-badge">{cartCount}</span>
-              )}
-            </motion.div>
+            {/* Cart */}
+            <button className="navbar__action-btn" title="Cart" onClick={() => navigate("/cart")}>
+              <i className="bi bi-bag" />
+              {cartCount > 0 && <span className="count">{cartCount}</span>}
+            </button>
 
-            {/* User menu / Auth */}
-            <div className="user-menu" ref={userMenuRef}>
+            {/* User */}
+            <div className="navbar__user" ref={userRef}>
               {!isAuthenticated ? (
-                <button
-                  className="btn btn-outline-light btn-sm rounded-pill px-3"
-                  onClick={() => navigate("/login")}
-                >
-                  Login
-                </button>
+                <button className="btn btn-primary btn-sm btn-pill"
+                  onClick={() => navigate("/login")}>Login</button>
               ) : (
                 <>
-                  <div
-                    className="user-avatar"
-                    onClick={() => setShowUserMenu(!showUserMenu)}
-                  >
-                    {user?.avatar ? (
-                      <img src={user.avatar} alt={user.name} />
-                    ) : (
-                      <div className="avatar-placeholder">
-                        {user?.name?.charAt(0) || "U"}
-                      </div>
-                    )}
+                  <div className="navbar__avatar" onClick={() => setShowUserMenu(!showUserMenu)}>
+                    {user?.avatar
+                      ? <img src={user.avatar} alt={user.name} />
+                      : <span>{user?.name?.charAt(0)?.toUpperCase() || "U"}</span>}
                   </div>
                   <AnimatePresence>
                     {showUserMenu && (
-                      <motion.div
-                        className="user-dropdown"
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                      >
-                        <div className="user-info">
+                      <motion.div className="navbar__user-dropdown"
+                        initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}>
+                        <div className="navbar__user-info">
                           <strong>{user?.name}</strong>
                           <span>{user?.email}</span>
                         </div>
-                        <ul>
-                          <li onClick={() => navigate("/profile")}>Profile</li>
-                          <li onClick={() => navigate("/orders")}>Orders</li>
-                          <li onClick={() => navigate("/wishlist")}>Wishlist</li>
-                          <li onClick={() => dispatch(logout())}>Logout</li>
-                        </ul>
+                        {[
+                          { label: "Profile", icon: "bi-person", path: "/profile" },
+                          { label: "My Orders", icon: "bi-bag-check", path: "/orders" },
+                          { label: "Wishlist", icon: "bi-heart", path: "/wishlist" },
+                        ].map(({ label, icon, path }) => (
+                          <button key={path} className="navbar__user-menu-item"
+                            onClick={() => { setShowUserMenu(false); navigate(path); }}>
+                            <i className={`bi ${icon}`} /> {label}
+                          </button>
+                        ))}
+                        <button className="navbar__user-menu-item danger"
+                          onClick={() => { dispatch(clearOrders()); dispatch(logout()); }}>
+                          <i className="bi bi-box-arrow-right" /> Logout
+                        </button>
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -204,74 +191,58 @@ function Navbar() {
               )}
             </div>
 
-            {/* Mobile toggle */}
-            <button
-              className="navbar-toggler custom-toggler"
-              onClick={toggleMobileMenu}
-            >
-              ☰
+            {/* Hamburger */}
+            <button className="navbar__toggler" onClick={() => setShowMobileMenu(true)}>
+              <i className="bi bi-list" />
             </button>
           </div>
         </div>
-
-        {/* Desktop bottom menu (visible on lg and up) */}
-        <div className="bottom-menu d-none d-lg-block">
-          <ul className="menu-list">
-            <li><NavLink to="/home" className="menu-link">Home</NavLink></li>
-            <li><NavLink to="/veg" className="menu-link">Veg</NavLink></li>
-            <li><NavLink to="/nonveg" className="menu-link">Non-Veg</NavLink></li>
-            <li><NavLink to="/offers" className="menu-link">Offers</NavLink></li>
-            <li><NavLink to="/orders" className="menu-link">Orders</NavLink></li>
-            <li><NavLink to="/contact-us" className="menu-link">Contact</NavLink></li>
-          </ul>
-        </div>
       </nav>
 
-      {/* Mobile offcanvas menu */}
+      {/* Mobile offcanvas */}
       <AnimatePresence>
         {showMobileMenu && (
           <>
-            <motion.div
-              className="offcanvas-backdrop"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={toggleMobileMenu}
-            />
-            <motion.div
-              className="offcanvas-menu"
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ type: "tween" }}
-            >
-              <div className="offcanvas-header">
-                <span className="brand">🍔 FoodCourt</span>
-                <button className="close-btn" onClick={toggleMobileMenu}>✕</button>
+            <motion.div className="navbar__backdrop"
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setShowMobileMenu(false)} />
+            <motion.div className="navbar__offcanvas"
+              initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }}
+              transition={{ type: "tween", duration: 0.28 }}>
+              <div className="navbar__offcanvas-header">
+                <div className="navbar__brand" onClick={() => { navigate("/home"); setShowMobileMenu(false); }}>
+                  <div className="navbar__brand-icon">🍔</div>
+                  <span>FoodCourt</span>
+                </div>
+                <button className="btn-icon" onClick={() => setShowMobileMenu(false)}>
+                  <i className="bi bi-x" />
+                </button>
               </div>
-              <ul className="offcanvas-nav">
-                <li><NavLink to="/home" onClick={toggleMobileMenu}>Home</NavLink></li>
-                <li><NavLink to="/veg" onClick={toggleMobileMenu}>Veg</NavLink></li>
-                <li><NavLink to="/nonveg" onClick={toggleMobileMenu}>Non-Veg</NavLink></li>
-                <li><NavLink to="/offers" onClick={toggleMobileMenu}>Offers</NavLink></li>
-                <li><NavLink to="/orders" onClick={toggleMobileMenu}>Orders</NavLink></li>
-                <li><NavLink to="/contact-us" onClick={toggleMobileMenu}>Contact</NavLink></li>
-              </ul>
-              {!isAuthenticated ? (
-                <button
-                  className="btn btn-outline-light w-75 mx-auto mt-4"
-                  onClick={() => { toggleMobileMenu(); navigate("/login"); }}
-                >
-                  Login
-                </button>
-              ) : (
-                <button
-                  className="btn btn-danger w-75 mx-auto mt-4"
-                  onClick={() => { dispatch(logout()); toggleMobileMenu(); }}
-                >
-                  Logout
-                </button>
-              )}
+
+              <nav className="navbar__offcanvas-links">
+                {NAV_LINKS.map(({ to, label }) => (
+                  <NavLink key={to} to={to}
+                    className={({ isActive }) => `navbar__offcanvas-link${isActive ? " active" : ""}`}
+                    onClick={() => setShowMobileMenu(false)}>
+                    {label}
+                  </NavLink>
+                ))}
+              </nav>
+
+              <div className="navbar__offcanvas-footer">
+                {!isAuthenticated ? (
+                  <button className="btn btn-primary btn-block btn-pill"
+                    onClick={() => { setShowMobileMenu(false); navigate("/login"); }}>
+                    Login
+                  </button>
+                ) : (
+                  <button className="btn btn-ghost btn-block btn-pill"
+                    style={{ color: "var(--primary)" }}
+                    onClick={() => { dispatch(clearOrders()); dispatch(logout()); setShowMobileMenu(false); }}>
+                    <i className="bi bi-box-arrow-right" style={{ marginRight: 6 }} /> Logout
+                  </button>
+                )}
+              </div>
             </motion.div>
           </>
         )}
@@ -279,5 +250,3 @@ function Navbar() {
     </>
   );
 }
-
-export default Navbar;

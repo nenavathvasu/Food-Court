@@ -1,0 +1,367 @@
+/* ═══════════════════════════════════════════
+   OFFERS PAGE
+═══════════════════════════════════════════ */
+
+.offers-page { min-height: 100vh; }
+
+/* Hero */
+.offers-hero {
+  position: relative;
+  padding: 80px 0 60px;
+  overflow: hidden;
+  background: var(--bg-2);
+  border-bottom: 1px solid var(--border);
+}
+.offers-hero__bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 80% at 20% 50%, rgba(255,68,68,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 60% at 80% 30%, rgba(255,184,0,0.08) 0%, transparent 60%);
+  pointer-events: none;
+}
+.offers-hero__content { position: relative; z-index: 1; }
+.offers-hero__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 16px;
+  background: var(--primary-glow);
+  border: 1px solid rgba(255,68,68,0.3);
+  border-radius: 99px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 20px;
+}
+.offers-hero__title {
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 5vw, 3.6rem);
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 14px;
+  color: var(--text);
+}
+.offers-hero__sub {
+  color: var(--text-2);
+  font-size: 1rem;
+  margin-bottom: 36px;
+  max-width: 480px;
+}
+
+/* Hero timer */
+.offers-hero__timer {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.offers-hero__timer-label {
+  font-size: 0.85rem;
+  color: var(--text-2);
+  font-weight: 500;
+}
+.offers-hero__timer-blocks {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.offers-timer-block {
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 14px;
+  text-align: center;
+  min-width: 58px;
+}
+.offers-timer-block span {
+  display: block;
+  font-family: "Courier New", monospace;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary);
+  line-height: 1;
+}
+.offers-timer-block small {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--text-3);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-top: 4px;
+  display: block;
+}
+.offers-timer-sep {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text-3);
+  line-height: 1;
+}
+
+/* Section spacing */
+.offers-section { padding: 60px 0; }
+
+/* ── Coupon grid ── */
+.offers-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+@media (max-width: 992px) { .offers-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .offers-grid { grid-template-columns: 1fr; } }
+
+/* ── Coupon card ── */
+.coupon-card {
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  position: relative;
+  transition: var(--transition-spring);
+  display: flex;
+  flex-direction: column;
+}
+.coupon-card:hover {
+  border-color: var(--coupon-color, var(--primary));
+  box-shadow: 0 0 0 1px var(--coupon-color, var(--primary)),
+              0 16px 40px var(--coupon-glow, var(--primary-glow));
+}
+
+/* Left colour strip */
+.coupon-card__strip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 5px;
+  height: 100%;
+  background: var(--coupon-color, var(--primary));
+}
+
+/* Notch circles */
+.coupon-card__notch {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--bg);
+  top: calc(68% - 10px);
+  border: 1px solid var(--border);
+}
+.coupon-card__notch--left  { left: -10px; }
+.coupon-card__notch--right { right: -10px; }
+
+.coupon-card__body {
+  padding: 20px 20px 16px 28px;
+  flex: 1;
+}
+.coupon-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.coupon-card__icon { font-size: 1.8rem; }
+.coupon-card__tag {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 99px;
+  background: var(--coupon-glow, var(--primary-glow));
+  color: var(--coupon-color, var(--primary));
+  border: 1px solid var(--coupon-color, var(--primary));
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.coupon-card__title {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 800;
+  margin-bottom: 6px;
+  color: var(--text);
+}
+.coupon-card__desc {
+  font-size: 0.85rem;
+  color: var(--text-2);
+  margin-bottom: 6px;
+  line-height: 1.5;
+}
+.coupon-card__min {
+  font-size: 0.76rem;
+  color: var(--text-3);
+  margin-bottom: 0;
+}
+
+/* Code row */
+.coupon-card__code-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--border);
+}
+.coupon-card__code {
+  flex: 1;
+  font-family: "Courier New", monospace;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--coupon-color, var(--primary));
+  background: var(--coupon-glow, var(--primary-glow));
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px dashed var(--coupon-color, var(--primary));
+}
+.coupon-card__copy {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+.coupon-card__copy:hover {
+  background: var(--coupon-color, var(--primary));
+  color: #fff;
+  border-color: var(--coupon-color, var(--primary));
+}
+
+/* Apply footer */
+.coupon-card__footer {
+  padding: 12px 20px 16px 28px;
+}
+.coupon-card__apply {
+  width: 100%;
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  background: var(--coupon-color, var(--primary));
+  border: none;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.88rem;
+  font-family: var(--font-body);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: var(--transition);
+  opacity: 1;
+}
+.coupon-card__apply:hover:not(:disabled) { filter: brightness(1.15); transform: translateY(-1px); }
+.coupon-card__apply:disabled {
+  background: var(--bg-4);
+  color: var(--green);
+  cursor: default;
+}
+
+/* ── Flash deals ── */
+.offers-flash-timer {
+  font-size: 0.88rem;
+  color: var(--text-2);
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  padding: 6px 14px;
+}
+.offers-flash-timer strong {
+  font-family: "Courier New", monospace;
+  color: var(--primary);
+}
+.offers-flash-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+@media (max-width: 992px) { .offers-flash-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 576px) { .offers-flash-grid { grid-template-columns: 1fr; } }
+
+.flash-card {
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  cursor: pointer;
+  transition: var(--transition-spring);
+}
+.flash-card:hover { border-color: var(--border-active); box-shadow: var(--shadow-md); }
+.flash-card__img-wrap { position: relative; height: 160px; overflow: hidden; }
+.flash-card__img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
+.flash-card:hover .flash-card__img-wrap img { transform: scale(1.07); }
+.flash-card__badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 99px;
+}
+.flash-card__body { padding: 14px; }
+.flash-card__name { font-weight: 700; font-size: 0.9rem; margin-bottom: 8px; }
+.flash-card__prices { display: flex; align-items: baseline; gap: 8px; margin-bottom: 12px; }
+.flash-card__sale { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; color: var(--accent); }
+.flash-card__original { font-size: 0.8rem; color: var(--text-3); text-decoration: line-through; }
+.flash-card__btn {
+  width: 100%;
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  background: var(--primary);
+  border: none;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.85rem;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: var(--transition);
+}
+.flash-card__btn:hover { background: var(--primary-dark); }
+
+/* ── How to use ── */
+.offers-howto {
+  background: var(--bg-2);
+  border-radius: var(--radius-xl);
+  padding: 48px 40px !important;
+  border: 1px solid var(--border);
+  margin-bottom: 60px;
+}
+.offers-howto__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  text-align: center;
+}
+@media (max-width: 768px) { .offers-howto__grid { grid-template-columns: 1fr; } }
+.offers-howto__card { padding: 0 16px; }
+.offers-howto__num {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 800;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 14px;
+}
+.offers-howto__icon {
+  display: block;
+  font-size: 2rem;
+  color: var(--accent);
+  margin-bottom: 14px;
+}
+.offers-howto__card h5 { font-weight: 700; margin-bottom: 8px; }
+.offers-howto__card p  { font-size: 0.85rem; color: var(--text-2); }

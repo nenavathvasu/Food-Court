@@ -1,13 +1,14 @@
+// src/features/orders/orderSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import { fetchAllOrdersFromServer } from "../../api/menuApi";
 
-// Async thunk to fetch all orders
+// Accept email so we can pass it to the API and also filter client-side
 export const fetchAllOrders = createAsyncThunk(
-  "orders/fetchAllOrders",
-  async (_, { rejectWithValue }) => {
+  "orders/fetchAll",
+  async (email, { rejectWithValue }) => {
     try {
-      const res = await axios.get("https://backend-express-nu.vercel.app/api/v1/orders");
-      return res.data;
+      const data = await fetchAllOrdersFromServer(email);
+      return { data, email };
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || "Failed to fetch orders");
     }
@@ -17,26 +18,40 @@ export const fetchAllOrders = createAsyncThunk(
 const ordersSlice = createSlice({
   name: "orders",
   initialState: {
-    list: [],
+    list:    [],   // filtered list for the current user
     loading: false,
-    error: null,
+    error:   null,
   },
-  reducers: {},
+  reducers: {
+    clearOrders: (state) => {
+      state.list  = [];
+      state.error = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchAllOrders.pending, (state) => {
-        state.loading = true;
-        state.error = null;
+      .addCase(fetchAllOrders.pending, (s) => {
+        s.loading = true;
+        s.error   = null;
       })
-      .addCase(fetchAllOrders.fulfilled, (state, action) => {
-        state.loading = false;
-        state.list = action.payload;
+      .addCase(fetchAllOrders.fulfilled, (s, { payload }) => {
+        s.loading = false;
+        const { data, email } = payload;
+
+        // Client-side filter — guaranteed safety net even if the backend
+        // ignores the ?email= query param and returns all orders
+        s.list = email
+          ? (data || []).filter(
+              (o) => o.customerEmail?.toLowerCase() === email.toLowerCase()
+            )
+          : (data || []);
       })
-      .addCase(fetchAllOrders.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
+      .addCase(fetchAllOrders.rejected, (s, { payload }) => {
+        s.loading = false;
+        s.error   = payload;
       });
   },
 });
 
+export const { clearOrders } = ordersSlice.actions;
 export default ordersSlice.reducer;

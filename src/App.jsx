@@ -1,56 +1,68 @@
+// src/App.jsx
 import React, { Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import "bootstrap/dist/css/bootstrap.min.css";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-// Components
-import Navbar from "./components/Navbar";
-
-// Pages & Features
-import Home from "./pages/Home";
-import ContactUs from "./pages/ContactUs";
-
-import Cart from "./features/cart/Cart";
-import Veg from "./features/menu/Veg";
-import Nonveg from "./features/menu/NonVeg";
-import Orders from "./features/orders/Orders";
-import LoginPage from "./features/auth/LoginPage";
+import Navbar       from "./components/Navbar";
+import Home         from "./pages/Home";
+import AboutUs      from "./pages/AboutUs";
+import ContactUs    from "./pages/ContactUs";
+import Veg          from "./features/menu/Veg";
+import NonVeg       from "./features/menu/NonVeg";
+import Cart         from "./features/cart/Cart";
+import Orders       from "./features/orders/Orders";
+import LoginPage    from "./features/auth/LoginPage";
 import RegisterPage from "./features/auth/RegisterPage";
+import Offers      from "./pages/Offers";
+import Profile     from "./pages/Profile";
+import Wishlist    from "./features/wishlist/Wishlist";
+import Payment     from "./features/payment/Payment";
+
+function Loader() {
+  return (
+    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "70vh" }}>
+      <div className="spinner-border text-danger" role="status">
+        <span className="visually-hidden">Loading…</span>
+      </div>
+    </div>
+  );
+}
 
 export default function App() {
   return (
     <BrowserRouter>
       <Navbar />
-
-      <main className="container-fluid px-0" style={{ minHeight: "100vh" }}>
-        <Suspense
-          fallback={
-            <div className="d-flex justify-content-center align-items-center vh-100">
-              <div className="spinner-border text-danger" role="status">
-                <span className="visually-hidden">Loading...</span>
-              </div>
-            </div>
-          }
-        >
+      <main>
+        <Suspense fallback={<Loader />}>
           <Routes>
-            <Route path="/" element={<Navigate to="/home" replace />} />
-
-            {/* Auth */}
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-
-            {/* Main pages */}
-            <Route path="/home" element={<Home />} />
-            <Route path="/veg" element={<Veg />} />
-            <Route path="/nonveg" element={<Nonveg />} />
-            <Route path="/cart" element={<Cart />} />
-            <Route path="/orders" element={<Orders />} />
+            <Route path="/"           element={<Navigate to="/home" replace />} />
+            <Route path="/home"       element={<Home />} />
+            <Route path="/veg"        element={<Veg />} />
+            <Route path="/nonveg"     element={<NonVeg />} />
+            <Route path="/cart"       element={<Cart />} />
+            <Route path="/orders"     element={<Orders />} />
+            <Route path="/about"      element={<AboutUs />} />
             <Route path="/contact-us" element={<ContactUs />} />
-
-            {/* Fallback */}
-            <Route path="*" element={<Navigate to="/home" replace />} />
+            <Route path="/offers"     element={<Offers />} />
+            <Route path="/profile"    element={<Profile />} />
+            <Route path="/wishlist"   element={<Wishlist />} />
+            <Route path="/payment"    element={<Payment />} />
+            <Route path="/login"      element={<LoginPage />} />
+            <Route path="/register"   element={<RegisterPage />} />
+            <Route path="*"           element={<Navigate to="/home" replace />} />
           </Routes>
         </Suspense>
       </main>
+      <ToastContainer
+        position="bottom-right"
+        autoClose={2500}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        pauseOnHover
+        theme="dark"
+      />
     </BrowserRouter>
   );
 }

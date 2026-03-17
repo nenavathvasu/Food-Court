@@ -1,0 +1,320 @@
+/* Bootstrap Icons are imported locally in main.jsx from the npm package */
+
+/*
+  FONT STRATEGY
+  ─────────────────────────────────────────────────────────────
+  We use 100% system fonts — no Google Fonts, no network calls.
+
+  --font-display  →  rounded/geometric system fonts for headings
+  --font-body     →  clean humanist system fonts for body text
+
+  These stacks work on every OS:
+  • macOS / iOS  : SF Pro Display / SF Pro Text (built-in Apple fonts)
+  • Windows      : Segoe UI
+  • Android      : Roboto
+  • Linux        : Ubuntu, Cantarell, Noto Sans
+  • Universal    : system-ui, -apple-system, sans-serif
+
+  Result: zero network dependency, faster paint, no FOUT (flash of unstyled text).
+  ─────────────────────────────────────────────────────────────
+*/
+
+/* ── DESIGN TOKENS ── */
+:root {
+  --bg: #0a0a0a;
+  --bg-2: #111111;
+  --bg-3: #1a1a1a;
+  --bg-4: #242424;
+  --surface: rgba(255,255,255,0.04);
+  --surface-hover: rgba(255,255,255,0.08);
+  --border: rgba(255,255,255,0.08);
+  --border-active: rgba(255,255,255,0.2);
+
+  --primary: #ff4444;
+  --primary-dark: #cc2222;
+  --primary-glow: rgba(255,68,68,0.25);
+
+  --accent: #ffb800;
+  --accent-glow: rgba(255,184,0,0.2);
+
+  --green: #22c55e;
+  --blue: #3b82f6;
+
+  --text: #f0f0f0;
+  --text-2: #a0a0a0;
+  --text-3: #606060;
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --radius-xl: 32px;
+
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.4);
+  --shadow-md: 0 8px 24px rgba(0,0,0,0.5);
+  --shadow-lg: 0 20px 50px rgba(0,0,0,0.6);
+  --shadow-primary: 0 8px 24px var(--primary-glow);
+
+  --transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+  --transition-spring: all 0.35s cubic-bezier(0.34,1.56,0.64,1);
+
+  /* Display font: bold/geometric system stack — always available, zero network */
+  --font-display:
+    ui-rounded,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Ubuntu,
+    Cantarell,
+    sans-serif;
+
+  /* Body font: clean humanist system stack */
+  --font-body:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    "Noto Sans",
+    Ubuntu,
+    Cantarell,
+    "Helvetica Neue",
+    Arial,
+    sans-serif;
+
+  --navbar-h: 64px;
+}
+
+/* ── RESET ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; }
+img { display: block; max-width: 100%; }
+ul, ol { list-style: none; }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--bg-2); }
+::-webkit-scrollbar-thumb { background: var(--bg-4); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-3); }
+
+/* ── UTILITY ── */
+.container { width: 100%; max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+
+/* ── BADGE ── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.badge-primary { background: var(--primary); color: #fff; }
+.badge-accent  { background: var(--accent); color: #000; }
+.badge-green   { background: var(--green); color: #fff; }
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 22px;
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.9rem;
+  border: none;
+  transition: var(--transition);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.btn-primary {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: var(--shadow-primary);
+}
+.btn-primary:hover:not(:disabled) {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 12px 28px var(--primary-glow);
+}
+
+.btn-ghost {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.btn-ghost:hover:not(:disabled) { background: var(--surface-hover); border-color: var(--border-active); }
+
+.btn-accent {
+  background: var(--accent);
+  color: #000;
+  font-weight: 700;
+}
+.btn-accent:hover:not(:disabled) { filter: brightness(1.1); transform: translateY(-1px); }
+
+.btn-sm { padding: 6px 14px; font-size: 0.82rem; border-radius: var(--radius-sm); }
+.btn-lg { padding: 14px 32px; font-size: 1rem; border-radius: var(--radius-lg); }
+.btn-pill { border-radius: 99px; }
+.btn-block { width: 100%; }
+
+.btn-icon {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 1.1rem;
+  transition: var(--transition);
+}
+.btn-icon:hover { background: var(--surface-hover); border-color: var(--border-active); transform: scale(1.05); }
+
+/* ── INPUT ── */
+.input {
+  width: 100%;
+  padding: 11px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  transition: var(--transition);
+  outline: none;
+}
+.input::placeholder { color: var(--text-3); }
+.input:focus { background: var(--surface-hover); border-color: var(--border-active); box-shadow: 0 0 0 3px rgba(255,255,255,0.04); }
+
+/* ── CARD ── */
+.card {
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: var(--transition);
+}
+.card:hover { border-color: var(--border-active); box-shadow: var(--shadow-md); }
+
+/* ── CHIP ── */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 16px;
+  border-radius: 99px;
+  font-size: 0.83rem;
+  font-weight: 500;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+.chip:hover { background: var(--surface-hover); color: var(--text); border-color: var(--border-active); }
+.chip.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+
+/* ── SECTION HEADING ── */
+.section-title {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 1.5rem;
+}
+
+/* ── SKELETON ── */
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-3) 25%, var(--bg-4) 50%, var(--bg-3) 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.6s infinite;
+  border-radius: var(--radius-md);
+}
+
+/* ── TOAST OVERRIDES ── */
+.Toastify__toast { background: var(--bg-3) !important; color: var(--text) !important; border: 1px solid var(--border) !important; border-radius: var(--radius-md) !important; }
+.Toastify__progress-bar { background: var(--primary) !important; }
+
+/* ── BOOTSTRAP MINIMAL OVERRIDES ── */
+.form-control, .form-select {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: var(--radius-md);
+}
+.form-control:focus, .form-select:focus {
+  background: var(--surface-hover);
+  border-color: var(--border-active);
+  color: var(--text);
+  box-shadow: none;
+}
+.form-select option { background: var(--bg-3); color: var(--text); }
+
+/* ── NATIVE SELECT DARK FIX (all browsers) ── */
+/*
+  Native <select> ignores background/color in some browsers when the
+  dropdown is open. We force dark styles on every select in the app.
+*/
+select,
+select.input,
+select.form-select,
+.menu-filter-bar__select {
+  background-color: var(--bg-3) !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23a0a0a0' d='M6 8L1 3h10z'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 14px center !important;
+  background-size: 10px !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+  padding-right: 36px !important;
+  cursor: pointer;
+}
+select:focus,
+select.input:focus,
+select.form-select:focus,
+.menu-filter-bar__select:focus {
+  background-color: var(--bg-4) !important;
+  border-color: var(--border-active) !important;
+  outline: none;
+  box-shadow: none !important;
+}
+select option,
+select.input option {
+  background-color: var(--bg-3) !important;
+  color: var(--text) !important;
+}
+
+/* ── SPINNER ── */
+.spinner-border.text-danger { color: var(--primary) !important; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .container { padding: 0 16px; }
+}

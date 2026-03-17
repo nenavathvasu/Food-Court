@@ -1,0 +1,141 @@
+/* ═══════════════════════════════════════════
+   WISHLIST PAGE
+═══════════════════════════════════════════ */
+.wishlist-page { padding: 48px 0 80px; min-height: 80vh; }
+
+.wishlist-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+.wishlist-title {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.wishlist-sub { color: var(--text-2); font-size: 0.9rem; }
+
+.wishlist-search {
+  position: relative;
+  max-width: 380px;
+  margin-bottom: 28px;
+}
+.wishlist-search i {
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-3);
+  pointer-events: none;
+}
+.wishlist-search .input { padding-left: 38px; border-radius: 99px; }
+
+/* Empty state */
+.wishlist-empty {
+  text-align: center;
+  padding: 80px 20px;
+}
+.wishlist-empty__icon {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: rgba(255,68,68,0.08);
+  border: 2px solid rgba(255,68,68,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  color: var(--primary);
+  margin: 0 auto 24px;
+}
+.wishlist-empty h3 { font-family: var(--font-display); font-weight: 800; font-size: 1.5rem; margin-bottom: 8px; }
+.wishlist-empty p  { color: var(--text-2); font-size: 0.95rem; }
+
+/* Grid */
+.wishlist-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+@media (max-width: 1200px) { .wishlist-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 768px)  { .wishlist-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 480px)  { .wishlist-grid { grid-template-columns: 1fr; } }
+
+/* Card */
+.wishlist-card {
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: var(--transition);
+}
+.wishlist-card:hover { border-color: var(--border-active); box-shadow: var(--shadow-md); }
+
+.wishlist-card__img-wrap {
+  position: relative;
+  height: 180px;
+  overflow: hidden;
+  cursor: pointer;
+}
+.wishlist-card__img-wrap img {
+  width: 100%; height: 100%; object-fit: cover;
+  transition: transform 0.4s;
+}
+.wishlist-card:hover .wishlist-card__img-wrap img { transform: scale(1.06); }
+
+.wishlist-card__remove {
+  position: absolute;
+  top: 10px; right: 10px;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.6);
+  border: none;
+  color: var(--primary);
+  font-size: 0.9rem;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: var(--transition);
+  z-index: 5;
+}
+.wishlist-card__remove:hover { background: var(--primary); color: #fff; transform: scale(1.1); }
+
+.wishlist-card__badge {
+  position: absolute;
+  bottom: 10px; left: 10px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 0.7rem; font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 99px;
+}
+
+.wishlist-card__body {
+  padding: 14px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.wishlist-card__name { font-weight: 700; font-size: 0.92rem; line-height: 1.3; }
+.wishlist-card__cat  { font-size: 0.76rem; color: var(--text-3); display: flex; align-items: center; gap: 4px; }
+.wishlist-card__rating {
+  display: flex; align-items: center; gap: 2px;
+  font-size: 0.76rem; color: var(--accent);
+}
+.wishlist-card__rating span { color: var(--text-3); margin-left: 3px; }
+.wishlist-card__desc { font-size: 0.78rem; color: var(--text-2); line-height: 1.5; flex: 1; }
+.wishlist-card__footer {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: auto; padding-top: 10px;
+}
+.wishlist-card__price    { font-family: var(--font-display); font-size: 1rem; font-weight: 700; color: var(--accent); }
+.wishlist-card__original { font-size: 0.75rem; color: var(--text-3); text-decoration: line-through; margin-left: 5px; }

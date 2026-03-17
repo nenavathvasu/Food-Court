@@ -1,106 +1,75 @@
+// src/features/cart/cartSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import { sendOrderToServer } from "../../api/menuApi";
 
-/* ================= PLACE ORDER API ================= */
-export const placeOrder = createAsyncThunk(
-  "cart/placeOrder",
-  async (orderData, { rejectWithValue }) => {
-    try {
-      const res = await axios.post(
-        "https://backend-express-nu.vercel.app/api/v1/orders/placeorder",
-        orderData
-      );
-      return res.data;
-    } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Order failed");
-    }
+const getId = (item) => item._id || item.id;
+
+export const placeOrder = createAsyncThunk("cart/placeOrder", async (orderData, { rejectWithValue }) => {
+  try {
+    return await sendOrderToServer(orderData);
+  } catch (err) {
+    return rejectWithValue(err.response?.data?.message || "Order failed");
   }
-);
+});
 
 const cartSlice = createSlice({
   name: "cart",
   initialState: {
-    items: [],
+    items:              [],
     discountPercentage: 0,
-    loading: false,
-    orderSuccess: false, // flag to redirect
+    loading:            false,
+    orderSuccess:       false,
   },
   reducers: {
-    addToCart: (state, action) => {
-      const existing = state.items.find(
-        i => (i._id || i.id) === (action.payload._id || action.payload.id)
-      );
+    addToCart: (state, { payload }) => {
+      const existing = state.items.find(i => getId(i) === getId(payload));
       if (existing) existing.quantity += 1;
-      else state.items.push({ ...action.payload, quantity: 1 });
+      else state.items.push({ ...payload, quantity: 1 });
     },
-    incrementQuantity: (state, action) => {
-      const item = state.items.find(i => (i._id || i.id) === action.payload);
+    incrementQuantity: (state, { payload }) => {
+      const item = state.items.find(i => getId(i) === payload);
       if (item) item.quantity += 1;
     },
-    decrementQuantity: (state, action) => {
-      const item = state.items.find(i => (i._id || i.id) === action.payload);
+    decrementQuantity: (state, { payload }) => {
+      const item = state.items.find(i => getId(i) === payload);
       if (item && item.quantity > 1) item.quantity -= 1;
     },
-    removeFromCart: (state, action) => {
-      state.items = state.items.filter(i => (i._id || i.id) !== action.payload);
+    removeFromCart: (state, { payload }) => {
+      state.items = state.items.filter(i => getId(i) !== payload);
     },
-    setDiscount: (state, action) => {
-      state.discountPercentage = action.payload;
+    setDiscount: (state, { payload }) => {
+      state.discountPercentage = payload;
     },
     clearCart: (state) => {
       state.items = [];
       state.discountPercentage = 0;
     },
-    resetOrderSuccess: (state) => {
-      state.orderSuccess = false;
-    },
+    resetOrderSuccess: (state) => { state.orderSuccess = false; },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(placeOrder.pending, (state) => {
-        state.loading = true;
-        state.orderSuccess = false;
-      })
-      .addCase(placeOrder.fulfilled, (state) => {
-        state.loading = false;
-        state.items = [];
-        state.orderSuccess = true; // redirect trigger
-      })
-      .addCase(placeOrder.rejected, (state) => {
-        state.loading = false;
-        state.orderSuccess = false;
-      });
+      .addCase(placeOrder.pending,   (state) => { state.loading = true; state.orderSuccess = false; })
+      .addCase(placeOrder.fulfilled, (state) => { state.loading = false; state.items = []; state.orderSuccess = true; })
+      .addCase(placeOrder.rejected,  (state) => { state.loading = false; });
   },
 });
 
 export const {
-  addToCart,
-  incrementQuantity,
-  decrementQuantity,
-  removeFromCart,
-  setDiscount,
-  clearCart,
-  resetOrderSuccess,
+  addToCart, incrementQuantity, decrementQuantity,
+  removeFromCart, setDiscount, clearCart, resetOrderSuccess,
 } = cartSlice.actions;
 
 export default cartSlice.reducer;
 
-/* ================= SELECTOR ================= */
+// Selector
 export const selectCartTotals = (state) => {
-  const itemsTotal = state.cart.items.reduce(
-    (total, item) => total + item.price * item.quantity,
-    0
-  );
-
-  const deliveryCharge = itemsTotal > 0 ? 25 : 0;
-  const handlingCharge = itemsTotal > 0 ? 2 : 0;
-  const smallCartCharge = itemsTotal > 0 && itemsTotal < 100 ? 20 : 0;
-
-  return {
-    itemsTotal,
-    deliveryCharge,
-    handlingCharge,
-    smallCartCharge,
-    grandTotal: itemsTotal + deliveryCharge + handlingCharge + smallCartCharge,
-  };
+  const subtotal        = state.cart.items.reduce((s, i) => s + i.price * i.quantity, 0);
+  const discountAmount  = Math.round((subtotal * (state.cart.discountPercentage || 0)) / 100);
+  const afterDiscount   = subtotal - discountAmount;
+  const gst             = Math.round(afterDiscount * 0.05);
+  const delivery        = subtotal > 0 ? 25 : 0;
+  const handling        = subtotal > 0 ? 2 : 0;
+  const smallCart       = subtotal > 0 && subtotal < 100 ? 20 : 0;
+  const total           = afterDiscount + gst + delivery + handling + smallCart;
+  return { subtotal, discountAmount, gst, delivery, handling, smallCart, total };
 };
