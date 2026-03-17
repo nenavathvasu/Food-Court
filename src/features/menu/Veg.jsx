@@ -1,6 +1,6 @@
 // src/features/menu/Veg.jsx
 import React from "react";
-import MenuPage from "./MenuPage";
+import MenuPage from "../menu/Menupage";
 import { fetchVeg, setVegPage, resetVegPage } from "./vegSlice";
 
 export default function Veg() {
