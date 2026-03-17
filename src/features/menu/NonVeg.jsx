@@ -1,6 +1,6 @@
 // src/features/menu/NonVeg.jsx
 import React from "react";
-import MenuPage from "./MenuPage";
+import MenuPage from "../menu/Menupage";
 import { fetchNonveg, setNonvegPage, resetNonvegPage } from "./nonvegSlice";
 
 export default function NonVeg() {
