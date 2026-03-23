@@ -2,28 +2,28 @@
 import axios from "axios";
 
 /*
-  BASE URL STRATEGY
-  ─────────────────────────────────────────────────────────────
-  Development  → requests go to /api/v1/...
-                 Vite proxy intercepts and forwards to
-                 https://backend-express-nu.vercel.app/api/v1/...
-                 Browser sees only localhost → zero CORS issues
-
-  Production   → set VITE_API_URL in your hosting env vars
-                 e.g. VITE_API_URL=https://backend-express-nu.vercel.app
-                 and configure CORS on the backend for your production domain
-  ─────────────────────────────────────────────────────────────
+  ┌─────────────────────────────────────────────────────────────┐
+  │  BASE URL STRATEGY                                          │
+  │                                                             │
+  │  LOCAL DEV  → requests hit /api/v1/...                      │
+  │               Vite proxy forwards them to Render backend    │
+  │               Browser sees only localhost → no CORS errors  │
+  │                                                             │
+  │  PRODUCTION → VITE_API_URL env var is set in Vercel         │
+  │               = https://foodcourtbackend.onrender.com       │
+  │               Axios calls Render directly, CORS is allowed  │
+  └─────────────────────────────────────────────────────────────┘
 */
 const BASE_URL = import.meta.env.VITE_API_URL
   ? `${import.meta.env.VITE_API_URL}/api/v1`
-  : "/api/v1";   // ← uses Vite proxy in dev
+  : "/api/v1";  // dev: uses Vite proxy
 
 const api = axios.create({
   baseURL: BASE_URL,
   headers: { "Content-Type": "application/json" },
 });
 
-// Attach JWT token — skip for /orders (public routes)
+// Attach JWT — skip for public /orders routes
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token && !config.url?.includes("/orders")) {
