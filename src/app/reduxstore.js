@@ -3,7 +3,7 @@ import axios from "axios";
 
 // Axios instance
 const api = axios.create({
-  baseURL: "https://backend-express-nu.vercel.app/api/v1", // Updated base URL
+  baseURL: "https://foodcourtbackend.onrender.com", // Updated base URL
   headers: {
     "Content-Type": "application/json",
   },
