@@ -7,8 +7,6 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      // Local dev only — proxies /api requests to your Render backend
-      // This avoids CORS in development. In production Vercel uses VITE_API_URL directly.
       "/api": {
         target: "https://foodcourtbackend.onrender.com",
         changeOrigin: true,

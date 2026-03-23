@@ -2,21 +2,12 @@
 import axios from "axios";
 
 /*
-  ┌─────────────────────────────────────────────────────────────┐
-  │  BASE URL STRATEGY                                          │
-  │                                                             │
-  │  LOCAL DEV  → requests hit /api/v1/...                      │
-  │               Vite proxy forwards them to Render backend    │
-  │               Browser sees only localhost → no CORS errors  │
-  │                                                             │
-  │  PRODUCTION → VITE_API_URL env var is set in Vercel         │
-  │               = https://foodcourtbackend.onrender.com       │
-  │               Axios calls Render directly, CORS is allowed  │
-  └─────────────────────────────────────────────────────────────┘
+  DEV  → /api/v1/... → Vite proxy → foodcourtbackend.onrender.com
+  PROD → VITE_API_URL set in Vercel → calls Render directly
 */
 const BASE_URL = import.meta.env.VITE_API_URL
   ? `${import.meta.env.VITE_API_URL}/api/v1`
-  : "/api/v1";  // dev: uses Vite proxy
+  : "/api/v1";
 
 const api = axios.create({
   baseURL: BASE_URL,
@@ -37,7 +28,8 @@ api.interceptors.response.use(
   (res) => res,
   (err) => {
     if (err.response?.status === 401) {
-      localStorage.clear();
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
       window.location.href = "/login";
     }
     return Promise.reject(err);
