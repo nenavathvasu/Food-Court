@@ -5,9 +5,9 @@ import axios from "axios";
   DEV  → /api/v1/... → Vite proxy → foodcourtbackend.onrender.com
   PROD → VITE_API_URL set in Vercel → calls Render directly
 */
-const BASE_URL = import.meta.env.VITE_API_URL
-  ? `${import.meta.env.VITE_API_URL}/api/v1`
-  : "/api/v1";
+const BASE_URL = "https://foodcourtbackend.onrender.com/api/v1";
+   `${import.meta.env.VITE_API_URL}/api/v1`
+   "/api/v1";
 
 const api = axios.create({
   baseURL: BASE_URL,
